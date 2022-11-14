@@ -5,17 +5,20 @@ import { useRouter } from "next/router";
 import { useContext, useState, type FormEvent } from "react";
 import { FaSpinner } from "react-icons/fa";
 import { AuthContext } from "../context/AuthContext";
+import { FirestoreContext } from "../context/FirestoreContext";
 
 const RegisterPage = () => {
 	const router = useRouter();
 	const [isLoading, setIsLoading] = useState(false);
 	const { register } = useContext(AuthContext);
+	const { addUser } = useContext(FirestoreContext);
 
 	const handleRegister = (e: FormEvent) => {
 		e.preventDefault();
 		setIsLoading(true);
 		register("test@test.test", "test1234")
 			.then(() => {
+				addUser();
 				router.replace("/");
 			})
 			.catch((err) => {

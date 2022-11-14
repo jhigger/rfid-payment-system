@@ -14,7 +14,7 @@ const LoginPage = () => {
 	const handleLogin = (e: FormEvent) => {
 		e.preventDefault();
 		setIsLoading(true);
-		login("njohnjhigger@gmail.com", "testing1234")
+		login("test@test.test", "test1234")
 			.then(() => {
 				router.replace("/");
 			})
