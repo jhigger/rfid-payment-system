@@ -8,8 +8,8 @@ import { FirestoreContext } from "../context/FirestoreContext";
 
 const Home: NextPage = () => {
 	const router = useRouter();
-	const { user } = useContext(FirestoreContext);
 	const { currentUser, logout } = useContext(AuthContext);
+	const { userData } = useContext(FirestoreContext);
 
 	const handleLogout = () => {
 		logout().catch((err) => console.log(err.message));
@@ -18,6 +18,16 @@ const Home: NextPage = () => {
 	if (!currentUser) {
 		router.push("/login");
 		return null;
+	}
+
+	if (userData.disabled) {
+		return (
+			<div className="container mx-auto flex min-h-screen flex-col items-center justify-center p-4">
+				<h1 className="text-5xl font-extrabold leading-normal text-gray-700 md:text-[5rem]">
+					Account Disabled
+				</h1>
+			</div>
+		);
 	}
 
 	return (
@@ -33,10 +43,10 @@ const Home: NextPage = () => {
 
 			<main className="container mx-auto flex min-h-screen flex-col items-center justify-center p-4">
 				<h1 className="text-5xl font-extrabold leading-normal text-gray-700 md:text-[5rem]">
-					{`Hello, ${user.data.name}!`}
+					{`Hello, ${currentUser.email}!`}
 				</h1>
 				<h2 className="text-5xl font-extrabold leading-normal text-gray-700 md:text-[5rem]">
-					{`Role: ${user.data.role}`}
+					{`Role: ${userData.role}`}
 				</h2>
 				<button
 					type="button"
