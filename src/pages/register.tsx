@@ -2,23 +2,34 @@ import { FirebaseError } from "firebase/app";
 import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { useContext, useState, type FormEvent } from "react";
+import { useContext, useState } from "react";
+import { useForm, type SubmitHandler } from "react-hook-form";
 import { FaSpinner } from "react-icons/fa";
 import { AuthContext } from "../context/AuthContext";
 import { FirestoreContext } from "../context/FirestoreContext";
 
+type Inputs = {
+	email: string;
+	password: string;
+};
+
 const RegisterPage = () => {
 	const router = useRouter();
 	const [isLoading, setIsLoading] = useState(false);
-	const { register } = useContext(AuthContext);
+	const { currentUser, signup } = useContext(AuthContext);
 	const { addUser } = useContext(FirestoreContext);
 
-	const handleRegister = (e: FormEvent) => {
-		e.preventDefault();
+	const {
+		register,
+		handleSubmit,
+		// formState: { errors },
+	} = useForm<Inputs>();
+
+	const onSubmit: SubmitHandler<Inputs> = ({ email, password }) => {
 		setIsLoading(true);
-		register("test@test.test", "test1234")
-			.then(() => {
-				addUser();
+		signup(email, password)
+			.then((res) => {
+				addUser(res.user.uid);
 				router.replace("/");
 			})
 			.catch((err) => {
@@ -30,6 +41,11 @@ const RegisterPage = () => {
 			})
 			.finally(() => setIsLoading(false));
 	};
+
+	if (currentUser) {
+		router.push("/");
+		return null;
+	}
 
 	return (
 		<>
@@ -52,34 +68,28 @@ const RegisterPage = () => {
 						</Link>
 					</span>
 					<div className="mt-8 p-6">
-						<form action="#">
+						<form onSubmit={handleSubmit(onSubmit)}>
 							<div className="mb-2 flex flex-col">
 								<div className=" relative ">
 									<input
 										type="text"
-										id="create-account-pseudo"
 										className=" w-full flex-1 appearance-none rounded-lg border border-transparent border-gray-300 bg-white py-2 px-4 text-base text-gray-700 placeholder-gray-400 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-600"
-										name="pseudo"
 										placeholder="ID Number"
 									/>
 								</div>
 							</div>
 							<div className="mb-2 flex gap-4">
-								<div className=" relative ">
+								<div className="relative">
 									<input
 										type="text"
-										id="create-account-first-name"
 										className=" w-full flex-1 appearance-none rounded-lg border border-transparent border-gray-300 bg-white py-2 px-4 text-base text-gray-700 placeholder-gray-400 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-600"
-										name="First name"
 										placeholder="First name"
 									/>
 								</div>
-								<div className=" relative ">
+								<div className="relative">
 									<input
 										type="text"
-										id="create-account-last-name"
 										className=" w-full flex-1 appearance-none rounded-lg border border-transparent border-gray-300 bg-white py-2 px-4 text-base text-gray-700 placeholder-gray-400 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-600"
-										name="Last name"
 										placeholder="Last name"
 									/>
 								</div>
@@ -87,10 +97,24 @@ const RegisterPage = () => {
 							<div className="mb-2 flex flex-col">
 								<div className=" relative ">
 									<input
-										type="text"
-										id="create-account-email"
+										type="email"
 										className=" w-full flex-1 appearance-none rounded-lg border border-transparent border-gray-300 bg-white py-2 px-4 text-base text-gray-700 placeholder-gray-400 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-600"
 										placeholder="Email"
+										{...register("email", {
+											required: true,
+										})}
+									/>
+								</div>
+							</div>
+							<div className="mb-2 flex flex-col">
+								<div className=" relative ">
+									<input
+										type="password"
+										className=" w-full flex-1 appearance-none rounded-lg border border-transparent border-gray-300 bg-white py-2 px-4 text-base text-gray-700 placeholder-gray-400 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-600"
+										placeholder="Password"
+										{...register("password", {
+											required: true,
+										})}
 									/>
 								</div>
 							</div>
@@ -98,7 +122,6 @@ const RegisterPage = () => {
 								<button
 									type="submit"
 									className="w-full rounded-lg  bg-purple-600 py-2 px-4 text-center text-base font-semibold text-white shadow-md transition duration-200 ease-in hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2  focus:ring-offset-purple-200 "
-									onClick={handleRegister}
 									disabled={isLoading}
 								>
 									{isLoading ? (

@@ -2,19 +2,30 @@ import { FirebaseError } from "firebase/app";
 import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { useContext, useState, type FormEvent } from "react";
+import { useContext, useState } from "react";
+import { useForm, type SubmitHandler } from "react-hook-form";
 import { FaEnvelope, FaSpinner, FaUnlock } from "react-icons/fa";
 import { AuthContext } from "../context/AuthContext";
+
+type Inputs = {
+	email: string;
+	password: string;
+};
 
 const LoginPage = () => {
 	const router = useRouter();
 	const [isLoading, setIsLoading] = useState(false);
-	const { login } = useContext(AuthContext);
+	const { currentUser, login } = useContext(AuthContext);
 
-	const handleLogin = (e: FormEvent) => {
-		e.preventDefault();
+	const {
+		register,
+		handleSubmit,
+		// formState: { errors },
+	} = useForm<Inputs>();
+
+	const onSubmit: SubmitHandler<Inputs> = ({ email, password }) => {
 		setIsLoading(true);
-		login("test@test.test", "test1234")
+		login(email, password)
 			.then(() => {
 				router.replace("/");
 			})
@@ -28,6 +39,11 @@ const LoginPage = () => {
 			.finally(() => setIsLoading(false));
 	};
 
+	if (currentUser) {
+		router.push("/");
+		return null;
+	}
+
 	return (
 		<>
 			<Head>
@@ -40,17 +56,19 @@ const LoginPage = () => {
 						Login To Your Account
 					</div>
 					<div className="mt-8">
-						<form action="#" autoComplete="off">
+						<form onSubmit={handleSubmit(onSubmit)}>
 							<div className="mb-2 flex flex-col">
 								<div className="relative flex ">
 									<span className="inline-flex items-center  rounded-l-md border-t border-l border-b border-gray-300 bg-white  px-3 text-sm text-gray-500 shadow-sm">
 										<FaEnvelope />
 									</span>
 									<input
-										type="text"
-										id="sign-in-email"
+										type="email"
 										className=" w-full flex-1 appearance-none rounded-r-lg border border-gray-300 bg-white py-2 px-4 text-base text-gray-700 placeholder-gray-400 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-600"
 										placeholder="Your email"
+										{...register("email", {
+											required: true,
+										})}
 									/>
 								</div>
 							</div>
@@ -61,9 +79,11 @@ const LoginPage = () => {
 									</span>
 									<input
 										type="password"
-										id="sign-in-password"
 										className=" w-full flex-1 appearance-none rounded-r-lg border border-gray-300 bg-white py-2 px-4 text-base text-gray-700 placeholder-gray-400 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-600"
 										placeholder="Your password"
+										{...register("password", {
+											required: true,
+										})}
 									/>
 								</div>
 							</div>
@@ -71,7 +91,6 @@ const LoginPage = () => {
 								<button
 									type="submit"
 									className="w-full rounded-lg  bg-purple-600 py-2 px-4 text-center text-base font-semibold text-white shadow-md transition duration-200 ease-in hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2  focus:ring-offset-purple-200 "
-									onClick={handleLogin}
 									disabled={isLoading}
 								>
 									{isLoading ? (

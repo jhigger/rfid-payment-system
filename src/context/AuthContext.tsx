@@ -4,14 +4,14 @@ import {
 	signInWithEmailAndPassword,
 	signOut,
 	type User,
-	type UserCredential,
+	type UserCredential
 } from "firebase/auth";
 import { createContext, useContext, useEffect, useState } from "react";
 import { auth } from "../lib/firebase";
 
 interface AuthValues {
 	currentUser: User | null;
-	register: (email: string, password: string) => Promise<UserCredential>;
+	signup: (email: string, password: string) => Promise<UserCredential>;
 	login: (email: string, password: string) => Promise<UserCredential>;
 	logout: () => Promise<void>;
 }
@@ -22,7 +22,7 @@ const AuthProvider = ({ children }: { children: JSX.Element | null }) => {
 	const [currentUser, setCurrentUser] = useState<User | null>(null);
 	const [loading, setLoading] = useState(true);
 
-	const register = (email: string, password: string) => {
+	const signup = (email: string, password: string) => {
 		return createUserWithEmailAndPassword(auth, email, password);
 	};
 
@@ -44,7 +44,7 @@ const AuthProvider = ({ children }: { children: JSX.Element | null }) => {
 
 	const value = {
 		currentUser,
-		register,
+		signup,
 		login,
 		logout,
 	};

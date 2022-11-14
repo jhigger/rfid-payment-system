@@ -7,7 +7,7 @@ type User = { data: { [x: string]: string } };
 
 interface ContextValues {
 	user: User;
-	addUser: () => Promise<void> | undefined;
+	addUser: (uid: string) => Promise<void> | undefined;
 }
 
 const FirestoreContext = createContext<ContextValues>({} as ContextValues);
@@ -17,15 +17,16 @@ const FirestoreProvider = ({ children }: { children: JSX.Element | null }) => {
 	const [loading, setLoading] = useState(true);
 	const { currentUser } = useContext(AuthContext);
 
-	const addUser = () => {
-		if (!currentUser) return;
-
-		return setDoc(doc(db, "users", currentUser.uid), {
-			name: "name",
-			role: "student",
-		})
-			.then((res) => console.log(res))
-			.catch((err) => console.log(err));
+	const addUser = async (uid: string) => {
+		try {
+			const res = await setDoc(doc(db, "users", uid), {
+				name: "name",
+				role: "student",
+			});
+			return console.log(res);
+		} catch (err) {
+			return console.log(err);
+		}
 	};
 
 	useEffect(() => {
