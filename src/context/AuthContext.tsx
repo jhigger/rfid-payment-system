@@ -4,7 +4,7 @@ import {
 	signInWithEmailAndPassword,
 	signOut,
 	type User,
-	type UserCredential
+	type UserCredential,
 } from "firebase/auth";
 import { createContext, useContext, useEffect, useState } from "react";
 import { auth } from "../lib/firebase";
