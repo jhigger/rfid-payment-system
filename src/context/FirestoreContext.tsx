@@ -1,40 +1,47 @@
-import { collection, getDocs } from "firebase/firestore";
-import { createContext, useEffect, useState } from "react";
+import { doc, getDoc } from "firebase/firestore";
+import { createContext, useContext, useEffect, useState } from "react";
 import { db } from "../lib/firebase";
+import { AuthContext } from "./AuthContext";
 
-type User = { id: string; data: { [x: string]: string } };
+type User = { data: { [x: string]: string } };
 
 interface ContextValues {
-	users: User[];
+	user: User;
 }
 
 const FirestoreContext = createContext<ContextValues>({} as ContextValues);
 
 const FirestoreProvider = ({ children }: { children: JSX.Element | null }) => {
-	const [users, setUsers] = useState<User[]>([] as User[]);
+	const [user, setUser] = useState<User>({} as User);
 	const [loading, setLoading] = useState(true);
 
-	useEffect(() => {
-		const getUsers = async () => {
-			const querySnapshot = await getDocs(collection(db, "users"));
+	const { currentUser } = useContext(AuthContext);
 
-			setUsers(
-				querySnapshot.docs.map((doc) => {
-					return {
-						id: doc.id,
-						data: {
-							...doc.data(),
-						},
-					};
-				})
-			);
+	useEffect(() => {
+		const getUser = async () => {
+			if (!currentUser) return;
+
+			const docRef = doc(db, "users", currentUser.uid);
+			const docSnap = await getDoc(docRef);
+
+			if (docSnap.exists()) {
+				setUser({
+					data: {
+						...docSnap.data(),
+					},
+				});
+			} else {
+				// doc.data() will be undefined in this case
+				console.log("No such document!");
+			}
+
 			setLoading(false);
 		};
 
-		getUsers();
-	}, []);
+		getUser();
+	}, [currentUser]);
 
-	const value = { users };
+	const value = { user };
 
 	return (
 		<FirestoreContext.Provider value={value}>
