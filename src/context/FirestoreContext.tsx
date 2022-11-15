@@ -1,29 +1,41 @@
+import type { CollectionReference } from "firebase/firestore";
 import { doc, getDoc, setDoc, Timestamp } from "firebase/firestore";
 import { createContext, useContext, useEffect, useState } from "react";
 import { db } from "../lib/firebase";
 import { AuthContext } from "./AuthContext";
 
-type UserData = {
-	role: "student" | "cashier" | "admin";
+type Pin = [number, number, number, number, number, number];
+type Role = "student" | "faculty" | "cashier" | "admin";
+
+export interface UserData {
+	email: string;
+	firstName: string;
+	middleName: string | null;
+	lastName: string;
+	mobileNumber: string;
+	address: string;
+	funds: number;
+	idNumber: string;
+	pin: Pin;
+	role: Role;
 	disabled: boolean;
 	createdAt: Timestamp;
 	updatedAt: Timestamp;
-};
+}
 
-type StudentData = {
-	firstName: string;
-	middleName: string;
-	lastName: string;
+type TransactionType = "send" | "receive" | "cash in";
+
+interface Transaction {
+	type: TransactionType;
+	transaction: CollectionReference;
+}
+
+interface StudentData {
+	transactions: Transaction;
+	transactionCount: number;
 	course: string;
 	year: string;
-	idNumber: string;
-	email: string;
-	mobileNumber: string;
-	address: string;
-	credits: number;
-	createdAt: Timestamp;
-	updatedAt: Timestamp;
-};
+}
 
 interface ContextValues {
 	userData: UserData;
@@ -45,7 +57,7 @@ const FirestoreProvider = ({ children }: { children: JSX.Element | null }) => {
 				disabled: false,
 				updatedAt: Timestamp.fromDate(new Date()),
 				createdAt: Timestamp.fromDate(new Date()),
-			} as UserData);
+			});
 		} catch (err) {
 			return console.log("addUser", err);
 		}
@@ -64,7 +76,7 @@ const FirestoreProvider = ({ children }: { children: JSX.Element | null }) => {
 
 	useEffect(() => {
 		const getUser = async () => {
-			if (!currentUser) return setLoading(false)
+			if (!currentUser) return setLoading(false);
 
 			const docRef = doc(db, "users", currentUser.uid);
 			const docSnap = await getDoc(docRef);

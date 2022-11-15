@@ -7,10 +7,10 @@ import { useForm, type SubmitHandler } from "react-hook-form";
 import { FaEnvelope, FaSpinner, FaUnlock } from "react-icons/fa";
 import { AuthContext } from "../context/AuthContext";
 
-type Inputs = {
+interface LoginInputs {
 	email: string;
 	password: string;
-};
+}
 
 const LoginPage = () => {
 	const router = useRouter();
@@ -21,9 +21,9 @@ const LoginPage = () => {
 		register,
 		handleSubmit,
 		// formState: { errors },
-	} = useForm<Inputs>();
+	} = useForm<LoginInputs>();
 
-	const onSubmit: SubmitHandler<Inputs> = ({ email, password }) => {
+	const onSubmit: SubmitHandler<LoginInputs> = ({ email, password }) => {
 		setIsLoading(true);
 		login(email, password)
 			.then(() => {

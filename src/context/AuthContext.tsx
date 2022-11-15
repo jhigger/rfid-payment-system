@@ -4,19 +4,19 @@ import {
 	signInWithEmailAndPassword,
 	signOut,
 	type User,
-	type UserCredential
+	type UserCredential,
 } from "firebase/auth";
 import { createContext, useContext, useEffect, useState } from "react";
 import { auth } from "../lib/firebase";
 
-interface AuthValues {
+interface ContextValues {
 	currentUser: User | null;
 	signup: (email: string, password: string) => Promise<UserCredential>;
 	login: (email: string, password: string) => Promise<UserCredential>;
 	logout: () => Promise<void>;
 }
 
-const AuthContext = createContext<AuthValues>({} as AuthValues);
+const AuthContext = createContext<ContextValues>({} as ContextValues);
 
 const AuthProvider = ({ children }: { children: JSX.Element | null }) => {
 	const [currentUser, setCurrentUser] = useState<User | null>(null);

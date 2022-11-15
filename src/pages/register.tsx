@@ -6,12 +6,13 @@ import { useContext, useState } from "react";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import { FaSpinner } from "react-icons/fa";
 import { AuthContext } from "../context/AuthContext";
+import type { UserData } from "../context/FirestoreContext";
 import { FirestoreContext } from "../context/FirestoreContext";
 
-type Inputs = {
-	email: string;
+interface RegisterInputs extends UserData {
 	password: string;
-};
+	confirmPassword: string;
+}
 
 const RegisterPage = () => {
 	const router = useRouter();
@@ -23,9 +24,9 @@ const RegisterPage = () => {
 		register,
 		handleSubmit,
 		// formState: { errors },
-	} = useForm<Inputs>();
+	} = useForm<RegisterInputs>();
 
-	const onSubmit: SubmitHandler<Inputs> = ({ email, password }) => {
+	const onSubmit: SubmitHandler<RegisterInputs> = ({ email, password }) => {
 		setIsLoading(true);
 		signup(email, password)
 			.then((res) => {
