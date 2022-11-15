@@ -1,4 +1,5 @@
 import { FirebaseError } from "firebase/app";
+import { Timestamp } from "firebase/firestore";
 import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -6,13 +7,19 @@ import { useContext, useState } from "react";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import { FaSpinner } from "react-icons/fa";
 import { AuthContext } from "../context/AuthContext";
-import type { UserData } from "../context/FirestoreContext";
-import { FirestoreContext } from "../context/FirestoreContext";
+import type { Role, UserData } from "../context/FirestoreContext";
+import { FirestoreContext, Roles } from "../context/FirestoreContext";
 
-interface RegisterInputs extends UserData {
+interface RegisterInputs
+	extends Omit<
+		UserData,
+		"disabled" | "funds" | "pin" | "createdAt" | "updatedAt"
+	> {
 	password: string;
 	confirmPassword: string;
 }
+
+type RegisterSubmit = Omit<RegisterInputs, "confirmPassword">;
 
 const RegisterPage = () => {
 	const router = useRouter();
@@ -23,14 +30,29 @@ const RegisterPage = () => {
 	const {
 		register,
 		handleSubmit,
+		watch,
 		// formState: { errors },
 	} = useForm<RegisterInputs>();
 
-	const onSubmit: SubmitHandler<RegisterInputs> = ({ email, password }) => {
+	const onSubmit: SubmitHandler<RegisterSubmit> = ({
+		email,
+		password,
+		...rest
+	}) => {
 		setIsLoading(true);
 		signup(email, password)
 			.then((res) => {
-				addUser(res.user.uid);
+				// defaults
+				const documentData: UserData = {
+					email,
+					disabled: false,
+					funds: 0,
+					pin: null,
+					createdAt: Timestamp.now(),
+					updatedAt: Timestamp.now(),
+					...rest,
+				};
+				addUser(res.user.uid, documentData);
 				router.replace("/");
 			})
 			.catch((err) => {
@@ -47,6 +69,16 @@ const RegisterPage = () => {
 		router.push("/");
 		return null;
 	}
+
+	// if (userData.role !== "admin") {
+	// 	return (
+	// 		<div className="container mx-auto flex min-h-screen flex-col items-center justify-center p-4">
+	// 			<h1 className="text-5xl font-extrabold leading-normal text-gray-700 md:text-[5rem]">
+	// 				Admin Only
+	// 			</h1>
+	// 		</div>
+	// 	);
+	// }
 
 	return (
 		<>
@@ -68,30 +100,102 @@ const RegisterPage = () => {
 							Login
 						</Link>
 					</span>
+
 					<div className="mt-8 p-6">
 						<form onSubmit={handleSubmit(onSubmit)}>
+							<div className="mb-2 flex flex-col">
+								<div className=" relative ">
+									<select
+										className="focus:ring-primary-500 focus:border-primary-500 block w-52 rounded-md border border-gray-300 bg-white py-2 px-3 text-gray-700 shadow-sm focus:outline-none"
+										{...register("idNumber", {
+											required: true,
+										})}
+									>
+										<option value="">Select a role</option>
+										{(
+											Object.keys(Roles).filter((el) => {
+												return isNaN(Number(el));
+											}) as Array<Role>
+										).map((item) => {
+											return (
+												<option key={item} value={item}>
+													{item}
+												</option>
+											);
+										})}
+									</select>
+								</div>
+							</div>
 							<div className="mb-2 flex flex-col">
 								<div className=" relative ">
 									<input
 										type="text"
 										className=" w-full flex-1 appearance-none rounded-lg border border-transparent border-gray-300 bg-white py-2 px-4 text-base text-gray-700 placeholder-gray-400 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-600"
 										placeholder="ID Number"
+										{...register("idNumber", {
+											required: true,
+										})}
 									/>
 								</div>
 							</div>
-							<div className="mb-2 flex gap-4">
-								<div className="relative">
+							<div className="mb-2 flex flex-col">
+								<div className=" relative ">
 									<input
 										type="text"
 										className=" w-full flex-1 appearance-none rounded-lg border border-transparent border-gray-300 bg-white py-2 px-4 text-base text-gray-700 placeholder-gray-400 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-600"
-										placeholder="First name"
+										placeholder="First Name"
+										{...register("firstName", {
+											required: true,
+										})}
 									/>
 								</div>
-								<div className="relative">
+							</div>
+							<div className="mb-2 flex flex-col">
+								<div className=" relative ">
 									<input
 										type="text"
 										className=" w-full flex-1 appearance-none rounded-lg border border-transparent border-gray-300 bg-white py-2 px-4 text-base text-gray-700 placeholder-gray-400 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-600"
-										placeholder="Last name"
+										placeholder="Middle Name"
+										{...register("middleName", {
+											required: true,
+										})}
+									/>
+								</div>
+							</div>
+							<div className="mb-2 flex flex-col">
+								<div className=" relative ">
+									<input
+										type="text"
+										className=" w-full flex-1 appearance-none rounded-lg border border-transparent border-gray-300 bg-white py-2 px-4 text-base text-gray-700 placeholder-gray-400 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-600"
+										placeholder="Last Name"
+										{...register("lastName", {
+											required: true,
+										})}
+									/>
+								</div>
+							</div>
+							<div className="mb-2 flex flex-col">
+								<div className=" relative ">
+									<input
+										type="text"
+										className=" w-full flex-1 appearance-none rounded-lg border border-transparent border-gray-300 bg-white py-2 px-4 text-base text-gray-700 placeholder-gray-400 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-600"
+										placeholder="Mobile Number (09876543210)"
+										{...register("mobileNumber", {
+											required: true,
+											//TODO: add regex pattern
+										})}
+									/>
+								</div>
+							</div>
+							<div className="mb-2 flex flex-col">
+								<div className=" relative ">
+									<input
+										type="text"
+										className=" w-full flex-1 appearance-none rounded-lg border border-transparent border-gray-300 bg-white py-2 px-4 text-base text-gray-700 placeholder-gray-400 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-600"
+										placeholder="Home Address"
+										{...register("address", {
+											required: true,
+										})}
 									/>
 								</div>
 							</div>
@@ -112,9 +216,27 @@ const RegisterPage = () => {
 									<input
 										type="password"
 										className=" w-full flex-1 appearance-none rounded-lg border border-transparent border-gray-300 bg-white py-2 px-4 text-base text-gray-700 placeholder-gray-400 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-600"
+										placeholder="Confirm Password"
+										{...register("confirmPassword", {
+											required: true,
+											minLength: 6,
+										})}
+									/>
+								</div>
+							</div>
+							<div className="mb-2 flex flex-col">
+								<div className=" relative ">
+									<input
+										type="password"
+										className=" w-full flex-1 appearance-none rounded-lg border border-transparent border-gray-300 bg-white py-2 px-4 text-base text-gray-700 placeholder-gray-400 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-600"
 										placeholder="Password"
 										{...register("password", {
 											required: true,
+											validate: (val: string) => {
+												if (watch("password") != val) {
+													return "Your passwords do no match";
+												}
+											},
 										})}
 									/>
 								</div>
