@@ -1,22 +1,29 @@
-import type { CollectionReference } from "firebase/firestore";
-import { doc, getDoc, setDoc, Timestamp } from "firebase/firestore";
+import type { CollectionReference, Timestamp } from "firebase/firestore";
+import { doc, getDoc, setDoc } from "firebase/firestore";
 import { createContext, useContext, useEffect, useState } from "react";
 import { db } from "../lib/firebase";
 import { AuthContext } from "./AuthContext";
 
-type Pin = [number, number, number, number, number, number];
-type Role = "student" | "faculty" | "cashier" | "admin";
+export enum Roles {
+	student,
+	faculty,
+	cashier,
+	admin,
+}
+
+export type Role = keyof typeof Roles;
 
 export interface UserData {
 	email: string;
 	firstName: string;
-	middleName: string | null;
+	middleName: string;
 	lastName: string;
 	mobileNumber: string;
 	address: string;
-	funds: number;
 	idNumber: string;
-	pin: Pin;
+
+	funds: number;
+	pin: string | null;
 	role: Role;
 	disabled: boolean;
 	createdAt: Timestamp;
@@ -39,7 +46,7 @@ interface StudentData {
 
 interface ContextValues {
 	userData: UserData;
-	addUser: (uid: string) => Promise<void> | undefined;
+	addUser: (uid: string, values: UserData) => Promise<void> | undefined;
 	addStudent: (uid: string) => Promise<void> | undefined;
 }
 
@@ -50,14 +57,9 @@ const FirestoreProvider = ({ children }: { children: JSX.Element | null }) => {
 	const [loading, setLoading] = useState(true);
 	const { currentUser } = useContext(AuthContext);
 
-	const addUser = async (uid: string) => {
+	const addUser = async (uid: string, documentData: UserData) => {
 		try {
-			await setDoc(doc(db, "users", uid), {
-				role: "student",
-				disabled: false,
-				updatedAt: Timestamp.fromDate(new Date()),
-				createdAt: Timestamp.fromDate(new Date()),
-			});
+			await setDoc(doc(db, "users", uid), documentData);
 		} catch (err) {
 			return console.log("addUser", err);
 		}
