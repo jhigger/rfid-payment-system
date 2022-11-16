@@ -47,7 +47,7 @@ interface TransactionReference {
 	transaction: CollectionReference;
 }
 
-export interface StudentData {
+interface StudentData {
 	course: string;
 	year: string;
 	createdAt: Timestamp;
