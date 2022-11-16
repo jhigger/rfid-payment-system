@@ -4,13 +4,13 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { db } from "../lib/firebase";
 import { AuthContext } from "./AuthContext";
 
-export enum Roles {
-	student,
-	faculty,
-	cashier,
-	admin,
-}
-export type Role = keyof typeof Roles;
+export const Roles = {
+	STUDENT: "student",
+	FACULTY: "faculty",
+	CASHIER: "cashier",
+	ADMIN: "admin",
+} as const;
+export type Role = typeof Roles[keyof typeof Roles];
 export type RoleData = StudentData;
 
 export type RegisterDefaults =
@@ -87,7 +87,7 @@ const FirestoreProvider = ({ children }: { children: JSX.Element | null }) => {
 			const { role, course, year } = userData;
 			const { createdAt, updatedAt } = docData;
 			switch (role) {
-				case Roles[0]:
+				case Roles.STUDENT:
 					const studentData = { course, year, createdAt, updatedAt };
 					addStudent(uid, studentData);
 					break;
