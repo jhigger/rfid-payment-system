@@ -1,5 +1,4 @@
 import { FirebaseError } from "firebase/app";
-import { Timestamp } from "firebase/firestore";
 import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -7,14 +6,15 @@ import { useContext, useState } from "react";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import { FaSpinner } from "react-icons/fa";
 import { AuthContext } from "../context/AuthContext";
-import type { Role, UserData } from "../context/FirestoreContext";
+import type {
+	RegisterDefaults,
+	Role,
+	RoleData,
+	UserData,
+} from "../context/FirestoreContext";
 import { FirestoreContext, Roles } from "../context/FirestoreContext";
 
-interface RegisterInputs
-	extends Omit<
-		UserData,
-		"disabled" | "funds" | "pin" | "createdAt" | "updatedAt"
-	> {
+interface RegisterInputs extends Omit<UserData & RoleData, RegisterDefaults> {
 	password: string;
 	confirmPassword: string;
 }
@@ -37,22 +37,21 @@ const RegisterPage = () => {
 	const onSubmit: SubmitHandler<RegisterSubmit> = ({
 		email,
 		password,
+		role,
 		...rest
 	}) => {
 		setIsLoading(true);
 		signup(email, password)
 			.then((res) => {
-				// defaults
-				const documentData: UserData = {
+				const uid = res.user.uid;
+				// generate defaults
+				const userData: Omit<RegisterSubmit, "password"> = {
 					email,
-					disabled: false,
-					funds: 0,
-					pin: null,
-					createdAt: Timestamp.now(),
-					updatedAt: Timestamp.now(),
+					role,
 					...rest,
 				};
-				addUser(res.user.uid, documentData);
+				// add to user table
+				addUser(uid, userData);
 				router.replace("/");
 			})
 			.catch((err) => {
@@ -107,11 +106,10 @@ const RegisterPage = () => {
 								<div className=" relative ">
 									<select
 										className="focus:ring-primary-500 focus:border-primary-500 block w-52 rounded-md border border-gray-300 bg-white py-2 px-3 text-gray-700 shadow-sm focus:outline-none"
-										{...register("idNumber", {
+										{...register("role", {
 											required: true,
 										})}
 									>
-										<option value="">Select a role</option>
 										{(
 											Object.keys(Roles).filter((el) => {
 												return isNaN(Number(el));
