@@ -2,6 +2,7 @@ import { FirebaseError } from "firebase/app";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import { useContext, useState } from "react";
+import type { FieldErrorsImpl, UseFormRegister } from "react-hook-form";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import { FaSpinner } from "react-icons/fa";
 import { AuthContext } from "../context/AuthContext";
@@ -30,6 +31,7 @@ const RegisterPage = () => {
 		handleSubmit,
 		watch,
 		formState: { errors },
+		getValues,
 	} = useForm<RegisterInputs>();
 
 	const onSubmit: SubmitHandler<RegisterInputs> = ({
@@ -264,6 +266,11 @@ const RegisterPage = () => {
 									</span>
 								</div>
 							</div>
+							<RoleDataInputs
+								role={getValues("role")}
+								register={register}
+								errors={errors}
+							/>
 							<div className="my-4 flex w-full">
 								<button
 									type="submit"
@@ -286,6 +293,54 @@ const RegisterPage = () => {
 			</main>
 		</>
 	);
+};
+
+type RoleDataProps = {
+	role: Role;
+	register: UseFormRegister<RegisterInputs>;
+	errors: Partial<FieldErrorsImpl<RegisterInputs>>;
+};
+const RoleDataInputs = ({ role, register, errors }: RoleDataProps) => {
+	switch (role) {
+		case Roles.STUDENT:
+			return (
+				<>
+					<div className="mb-2 flex flex-col">
+						<div className=" relative ">
+							<input
+								type="text"
+								className=" w-full flex-1 appearance-none rounded-lg border border-transparent border-gray-300 bg-white py-2 px-4 text-base text-gray-700 placeholder-gray-400 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-600"
+								placeholder="Course"
+								{...register("course", {
+									required: true,
+								})}
+							/>
+							<span className="flex-items-center justify-center text-center text-sm text-red-500 dark:text-red-400">
+								{errors.course && errors.course.message}
+							</span>
+						</div>
+					</div>
+					<div className="mb-2 flex flex-col">
+						<div className=" relative ">
+							<input
+								type="text"
+								className=" w-full flex-1 appearance-none rounded-lg border border-transparent border-gray-300 bg-white py-2 px-4 text-base text-gray-700 placeholder-gray-400 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-600"
+								placeholder="Year"
+								{...register("year", {
+									required: true,
+								})}
+							/>
+							<span className="flex-items-center justify-center text-center text-sm text-red-500 dark:text-red-400">
+								{errors.year && errors.year.message}
+							</span>
+						</div>
+					</div>
+				</>
+			);
+
+		default:
+			return null;
+	}
 };
 
 export default RegisterPage;
