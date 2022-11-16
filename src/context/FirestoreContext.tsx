@@ -30,11 +30,18 @@ export interface UserData {
 	mobileNumber: string;
 	address: string;
 	idNumber: string;
+<<<<<<< HEAD
 	role: Role;
+=======
+>>>>>>> 2af3118c9969e8ea34ab30250a0cf1142cf7aa5e
 	// defaults
 	disabled: boolean;
 	funds: number;
 	pin: string | null;
+<<<<<<< HEAD
+=======
+	role: Role;
+>>>>>>> 2af3118c9969e8ea34ab30250a0cf1142cf7aa5e
 	createdAt: Timestamp;
 	updatedAt: Timestamp;
 	transactions: TransactionReference[];
