@@ -1,6 +1,5 @@
 import type { CollectionReference } from "firebase/firestore";
-import { Timestamp } from "firebase/firestore";
-import { doc, getDoc, setDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc, Timestamp } from "firebase/firestore";
 import { createContext, useContext, useEffect, useState } from "react";
 import { db } from "../lib/firebase";
 import { AuthContext } from "./AuthContext";

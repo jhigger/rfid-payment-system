@@ -10,7 +10,7 @@ import type {
 	RegisterDefaults,
 	Role,
 	RoleData,
-	UserData,
+	UserData
 } from "../context/FirestoreContext";
 import { FirestoreContext, Roles } from "../context/FirestoreContext";
 
