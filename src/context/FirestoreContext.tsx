@@ -1,4 +1,5 @@
-import type { CollectionReference, Timestamp } from "firebase/firestore";
+import type { CollectionReference } from "firebase/firestore";
+import { Timestamp } from "firebase/firestore";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { createContext, useContext, useEffect, useState } from "react";
 import { db } from "../lib/firebase";
@@ -10,9 +11,17 @@ export enum Roles {
 	cashier,
 	admin,
 }
-
 export type Role = keyof typeof Roles;
+export type RoleData = StudentData;
 
+export type RegisterDefaults =
+	| "disabled"
+	| "funds"
+	| "pin"
+	| "createdAt"
+	| "updatedAt"
+	| "transactions"
+	| "transactionCount";
 export interface UserData {
 	email: string;
 	firstName: string;
@@ -21,33 +30,37 @@ export interface UserData {
 	mobileNumber: string;
 	address: string;
 	idNumber: string;
-
+	// defaults
+	disabled: boolean;
 	funds: number;
 	pin: string | null;
 	role: Role;
-	disabled: boolean;
 	createdAt: Timestamp;
 	updatedAt: Timestamp;
+	transactions: TransactionReference[];
+	transactionCount: number;
 }
 
 type TransactionType = "send" | "receive" | "cash in";
 
-interface Transaction {
+interface TransactionReference {
 	type: TransactionType;
 	transaction: CollectionReference;
 }
 
-interface StudentData {
-	transactions: Transaction;
-	transactionCount: number;
+export interface StudentData {
 	course: string;
 	year: string;
+	createdAt: Timestamp;
+	updatedAt: Timestamp;
 }
 
 interface ContextValues {
 	userData: UserData;
-	addUser: (uid: string, values: UserData) => Promise<void> | undefined;
-	addStudent: (uid: string) => Promise<void> | undefined;
+	addUser: (
+		uid: string,
+		userData: Omit<UserData & RoleData, RegisterDefaults>
+	) => Promise<void> | undefined;
 }
 
 const FirestoreContext = createContext<ContextValues>({} as ContextValues);
@@ -57,22 +70,41 @@ const FirestoreProvider = ({ children }: { children: JSX.Element | null }) => {
 	const [loading, setLoading] = useState(true);
 	const { currentUser } = useContext(AuthContext);
 
-	const addUser = async (uid: string, documentData: UserData) => {
+	const addUser = async (
+		uid: string,
+		userData: Omit<UserData & RoleData, RegisterDefaults>
+	) => {
 		try {
-			await setDoc(doc(db, "users", uid), documentData);
+			const docData: Omit<UserData & RoleData, "transactions"> = {
+				disabled: false,
+				funds: 0,
+				pin: null,
+				transactionCount: 0,
+				createdAt: Timestamp.now(),
+				updatedAt: Timestamp.now(),
+				...userData,
+			};
+			await setDoc(doc(db, "users", uid), docData);
+			const { role, course, year } = userData;
+			const { createdAt, updatedAt } = docData;
+			switch (role) {
+				case Roles[0]:
+					const studentData = { course, year, createdAt, updatedAt };
+					addStudent(uid, studentData);
+					break;
+				default:
+					break;
+			}
 		} catch (err) {
 			return console.log("addUser", err);
 		}
 	};
 
-	const addStudent = async (uid: string) => {
+	const addStudent = async (uid: string, studentData: StudentData) => {
 		try {
-			await setDoc(doc(db, "students", uid), {
-				// name: "name",
-				// role: "student",
-			} as StudentData);
+			await setDoc(doc(db, "students", uid), { ...studentData });
 		} catch (err) {
-			return console.log("addUser", err);
+			return console.log("addStudent", err);
 		}
 	};
 
