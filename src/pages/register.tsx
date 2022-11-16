@@ -1,6 +1,5 @@
 import { FirebaseError } from "firebase/app";
 import Head from "next/head";
-import Link from "next/link";
 import { useRouter } from "next/router";
 import { useContext, useState } from "react";
 import { useForm, type SubmitHandler } from "react-hook-form";
@@ -10,7 +9,7 @@ import type {
 	RegisterDefaults,
 	Role,
 	RoleData,
-	UserData
+	UserData,
 } from "../context/FirestoreContext";
 import { FirestoreContext, Roles } from "../context/FirestoreContext";
 
@@ -19,44 +18,45 @@ interface RegisterInputs extends Omit<UserData & RoleData, RegisterDefaults> {
 	confirmPassword: string;
 }
 
-type RegisterSubmit = Omit<RegisterInputs, "confirmPassword">;
-
 const RegisterPage = () => {
 	const router = useRouter();
 	const [isLoading, setIsLoading] = useState(false);
-	const { currentUser, signup } = useContext(AuthContext);
-	const { addUser } = useContext(FirestoreContext);
+	const [formError, setFormError] = useState("");
+	const { signup } = useContext(AuthContext);
+	const { userData, addUser } = useContext(FirestoreContext);
 
 	const {
 		register,
 		handleSubmit,
 		watch,
-		// formState: { errors },
+		formState: { errors },
 	} = useForm<RegisterInputs>();
 
-	const onSubmit: SubmitHandler<RegisterSubmit> = ({
+	const onSubmit: SubmitHandler<RegisterInputs> = ({
 		email,
 		password,
-		role,
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
+		confirmPassword,
 		...rest
 	}) => {
 		setIsLoading(true);
+		setFormError("");
 		signup(email, password)
 			.then((res) => {
 				const uid = res.user.uid;
 				// generate defaults
-				const userData: Omit<RegisterSubmit, "password"> = {
+				const userData = {
 					email,
-					role,
 					...rest,
 				};
 				// add to user table
 				addUser(uid, userData);
+				console.log(uid, userData);
 				router.replace("/");
 			})
 			.catch((err) => {
 				if (err instanceof FirebaseError) {
-					console.log(err.message);
+					setFormError(err.message);
 				} else {
 					console.log(err);
 				}
@@ -64,20 +64,15 @@ const RegisterPage = () => {
 			.finally(() => setIsLoading(false));
 	};
 
-	if (currentUser) {
-		router.push("/");
-		return null;
+	if (userData.role !== Roles.ADMIN) {
+		return (
+			<main className="container mx-auto flex min-h-screen flex-col items-center justify-center p-4">
+				<h1 className="text-5xl font-extrabold leading-normal text-gray-700 md:text-[5rem]">
+					Admin Only
+				</h1>
+			</main>
+		);
 	}
-
-	// if (userData.role !== "admin") {
-	// 	return (
-	// 		<div className="container mx-auto flex min-h-screen flex-col items-center justify-center p-4">
-	// 			<h1 className="text-5xl font-extrabold leading-normal text-gray-700 md:text-[5rem]">
-	// 				Admin Only
-	// 			</h1>
-	// 		</div>
-	// 	);
-	// }
 
 	return (
 		<>
@@ -90,16 +85,6 @@ const RegisterPage = () => {
 					<div className="mb-2 self-center text-xl font-light text-gray-800 dark:text-white sm:text-2xl">
 						Create a new account
 					</div>
-					<span className="flex-items-center justify-center text-center text-sm text-gray-500 dark:text-gray-400">
-						Already have an account ?{" "}
-						<Link
-							href="/login"
-							className="text-sm text-blue-500 underline hover:text-blue-700"
-						>
-							Login
-						</Link>
-					</span>
-
 					<div className="mt-8 p-6">
 						<form onSubmit={handleSubmit(onSubmit)}>
 							<div className="mb-2 flex flex-col">
@@ -110,18 +95,22 @@ const RegisterPage = () => {
 											required: true,
 										})}
 									>
-										{(
-											Object.keys(Roles).filter((el) => {
-												return isNaN(Number(el));
-											}) as Array<Role>
-										).map((item) => {
-											return (
-												<option key={item} value={item}>
-													{item}
-												</option>
-											);
-										})}
+										{(Object.values(Roles) as Role[]).map(
+											(item) => {
+												return (
+													<option
+														key={item}
+														value={item}
+													>
+														{item}
+													</option>
+												);
+											}
+										)}
 									</select>
+									<span className="flex-items-center justify-center text-center text-sm text-red-500 dark:text-red-400">
+										{errors.role && errors.role.message}
+									</span>
 								</div>
 							</div>
 							<div className="mb-2 flex flex-col">
@@ -132,8 +121,13 @@ const RegisterPage = () => {
 										placeholder="ID Number"
 										{...register("idNumber", {
 											required: true,
+											// TODO: add regex pattern
 										})}
 									/>
+									<span className="flex-items-center justify-center text-center text-sm text-red-500 dark:text-red-400">
+										{errors.idNumber &&
+											errors.idNumber.message}
+									</span>
 								</div>
 							</div>
 							<div className="mb-2 flex flex-col">
@@ -146,6 +140,10 @@ const RegisterPage = () => {
 											required: true,
 										})}
 									/>
+									<span className="flex-items-center justify-center text-center text-sm text-red-500 dark:text-red-400">
+										{errors.firstName &&
+											errors.firstName.message}
+									</span>
 								</div>
 							</div>
 							<div className="mb-2 flex flex-col">
@@ -158,6 +156,10 @@ const RegisterPage = () => {
 											required: true,
 										})}
 									/>
+									<span className="flex-items-center justify-center text-center text-sm text-red-500 dark:text-red-400">
+										{errors.middleName &&
+											errors.middleName.message}
+									</span>
 								</div>
 							</div>
 							<div className="mb-2 flex flex-col">
@@ -170,6 +172,10 @@ const RegisterPage = () => {
 											required: true,
 										})}
 									/>
+									<span className="flex-items-center justify-center text-center text-sm text-red-500 dark:text-red-400">
+										{errors.lastName &&
+											errors.lastName.message}
+									</span>
 								</div>
 							</div>
 							<div className="mb-2 flex flex-col">
@@ -177,12 +183,16 @@ const RegisterPage = () => {
 									<input
 										type="text"
 										className=" w-full flex-1 appearance-none rounded-lg border border-transparent border-gray-300 bg-white py-2 px-4 text-base text-gray-700 placeholder-gray-400 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-600"
-										placeholder="Mobile Number (09876543210)"
+										placeholder="Mobile (09876543210)"
 										{...register("mobileNumber", {
 											required: true,
 											//TODO: add regex pattern
 										})}
 									/>
+									<span className="flex-items-center justify-center text-center text-sm text-red-500 dark:text-red-400">
+										{errors.mobileNumber &&
+											errors.mobileNumber.message}
+									</span>
 								</div>
 							</div>
 							<div className="mb-2 flex flex-col">
@@ -195,6 +205,10 @@ const RegisterPage = () => {
 											required: true,
 										})}
 									/>
+									<span className="flex-items-center justify-center text-center text-sm text-red-500 dark:text-red-400">
+										{errors.address &&
+											errors.address.message}
+									</span>
 								</div>
 							</div>
 							<div className="mb-2 flex flex-col">
@@ -207,19 +221,9 @@ const RegisterPage = () => {
 											required: true,
 										})}
 									/>
-								</div>
-							</div>
-							<div className="mb-2 flex flex-col">
-								<div className=" relative ">
-									<input
-										type="password"
-										className=" w-full flex-1 appearance-none rounded-lg border border-transparent border-gray-300 bg-white py-2 px-4 text-base text-gray-700 placeholder-gray-400 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-600"
-										placeholder="Confirm Password"
-										{...register("confirmPassword", {
-											required: true,
-											minLength: 6,
-										})}
-									/>
+									<span className="flex-items-center justify-center text-center text-sm text-red-500 dark:text-red-400">
+										{errors.email && errors.email.message}
+									</span>
 								</div>
 							</div>
 							<div className="mb-2 flex flex-col">
@@ -230,6 +234,23 @@ const RegisterPage = () => {
 										placeholder="Password"
 										{...register("password", {
 											required: true,
+											minLength: 6,
+										})}
+									/>
+									<span className="flex-items-center justify-center text-center text-sm text-red-500 dark:text-red-400">
+										{errors.password &&
+											errors.password.message}
+									</span>
+								</div>
+							</div>
+							<div className="mb-2 flex flex-col">
+								<div className=" relative ">
+									<input
+										type="password"
+										className=" w-full flex-1 appearance-none rounded-lg border border-transparent border-gray-300 bg-white py-2 px-4 text-base text-gray-700 placeholder-gray-400 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-600"
+										placeholder="Confirm Password"
+										{...register("confirmPassword", {
+											required: true,
 											validate: (val: string) => {
 												if (watch("password") != val) {
 													return "Your passwords do no match";
@@ -237,6 +258,10 @@ const RegisterPage = () => {
 											},
 										})}
 									/>
+									<span className="flex-items-center justify-center text-center text-sm text-red-500 dark:text-red-400">
+										{errors.confirmPassword &&
+											errors.confirmPassword.message}
+									</span>
 								</div>
 							</div>
 							<div className="my-4 flex w-full">
@@ -252,6 +277,9 @@ const RegisterPage = () => {
 									)}
 								</button>
 							</div>
+							<span className="flex-items-center justify-center text-center text-sm text-red-500 dark:text-red-400">
+								{formError}
+							</span>
 						</form>
 					</div>
 				</div>

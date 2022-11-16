@@ -1,6 +1,5 @@
 import { FirebaseError } from "firebase/app";
 import Head from "next/head";
-import Link from "next/link";
 import { useRouter } from "next/router";
 import { useContext, useState } from "react";
 import { useForm, type SubmitHandler } from "react-hook-form";
@@ -15,23 +14,25 @@ interface LoginInputs {
 const LoginPage = () => {
 	const router = useRouter();
 	const [isLoading, setIsLoading] = useState(false);
+	const [formError, setFormError] = useState("");
 	const { currentUser, login } = useContext(AuthContext);
 
 	const {
 		register,
 		handleSubmit,
-		// formState: { errors },
+		formState: { errors },
 	} = useForm<LoginInputs>();
 
 	const onSubmit: SubmitHandler<LoginInputs> = ({ email, password }) => {
 		setIsLoading(true);
+		setFormError("");
 		login(email, password)
 			.then(() => {
 				router.replace("/");
 			})
 			.catch((err) => {
 				if (err instanceof FirebaseError) {
-					console.log(err.message);
+					setFormError(err.message);
 				} else {
 					console.log(err);
 				}
@@ -70,6 +71,9 @@ const LoginPage = () => {
 											required: true,
 										})}
 									/>
+									<span className="flex-items-center justify-center text-center text-sm text-red-500 dark:text-red-400">
+										{errors.email && errors.email.message}
+									</span>
 								</div>
 							</div>
 							<div className="mb-6 flex flex-col">
@@ -85,6 +89,10 @@ const LoginPage = () => {
 											required: true,
 										})}
 									/>
+									<span className="flex-items-center justify-center text-center text-sm text-red-500 dark:text-red-400">
+										{errors.password &&
+											errors.password.message}
+									</span>
 								</div>
 							</div>
 							<div className="flex w-full">
@@ -100,17 +108,10 @@ const LoginPage = () => {
 									)}
 								</button>
 							</div>
-						</form>
-					</div>
-					<div className="mt-6 flex items-center justify-center">
-						<Link
-							href="/register"
-							className="inline-flex items-center text-center text-xs font-thin text-gray-500 hover:text-gray-700 dark:text-gray-100 dark:hover:text-white"
-						>
-							<span className="ml-2">
-								You don&#x27;t have an account?
+							<span className="flex-items-center justify-center text-center text-sm text-red-500 dark:text-red-400">
+								{formError}
 							</span>
-						</Link>
+						</form>
 					</div>
 				</div>
 			</main>
