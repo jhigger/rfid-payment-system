@@ -335,6 +335,10 @@ const RoleDataInputs = ({ role, register, errors }: RoleDataProps) => {
 			</>
 		);
 	}
+
+	// for additional registration fields on different roles
+	// if (role === Roles.INSERT_ROLE_HERE) { INSERT_OTHER_FIELDS_HERE }
+
 	return null;
 };
 
