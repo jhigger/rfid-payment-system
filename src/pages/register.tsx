@@ -6,15 +6,10 @@ import type { FieldErrorsImpl, UseFormRegister } from "react-hook-form";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import { FaSpinner } from "react-icons/fa";
 import { AuthContext } from "../context/AuthContext";
-import type {
-	RegisterDefaults,
-	Role,
-	RoleData,
-	UserData,
-} from "../context/FirestoreContext";
+import type { RegisterData, Role } from "../context/FirestoreContext";
 import { FirestoreContext, Roles } from "../context/FirestoreContext";
 
-interface RegisterInputs extends Omit<UserData & RoleData, RegisterDefaults> {
+interface RegisterInputs extends RegisterData {
 	password: string;
 	confirmPassword: string;
 }
@@ -23,15 +18,15 @@ const RegisterPage = () => {
 	const router = useRouter();
 	const [isLoading, setIsLoading] = useState(false);
 	const [formError, setFormError] = useState("");
+	const [role, setRole] = useState<Role>("student");
 	const { signup } = useContext(AuthContext);
-	const { userData, addUser } = useContext(FirestoreContext);
+	const { currentUserData, addUser } = useContext(FirestoreContext);
 
 	const {
 		register,
 		handleSubmit,
 		watch,
 		formState: { errors },
-		getValues,
 	} = useForm<RegisterInputs>();
 
 	const onSubmit: SubmitHandler<RegisterInputs> = ({
@@ -66,7 +61,7 @@ const RegisterPage = () => {
 			.finally(() => setIsLoading(false));
 	};
 
-	if (userData.role !== Roles.ADMIN) {
+	if (currentUserData.role !== Roles.ADMIN) {
 		return (
 			<main className="container mx-auto flex min-h-screen flex-col items-center justify-center p-4">
 				<h1 className="text-5xl font-extrabold leading-normal text-gray-700 md:text-[5rem]">
@@ -94,8 +89,11 @@ const RegisterPage = () => {
 									<select
 										className="focus:ring-primary-500 focus:border-primary-500 block w-52 rounded-md border border-gray-300 bg-white py-2 px-3 text-gray-700 shadow-sm focus:outline-none"
 										{...register("role", {
-											required: true,
+											onChange: (e) => {
+												setRole(e.target.value);
+											},
 										})}
+										defaultValue={Roles.STUDENT}
 									>
 										{(Object.values(Roles) as Role[]).map(
 											(item) => {
@@ -122,7 +120,7 @@ const RegisterPage = () => {
 										className=" w-full flex-1 appearance-none rounded-lg border border-transparent border-gray-300 bg-white py-2 px-4 text-base text-gray-700 placeholder-gray-400 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-600"
 										placeholder="ID Number"
 										{...register("idNumber", {
-											required: true,
+											required: "Field is required",
 											// TODO: add regex pattern
 										})}
 									/>
@@ -139,7 +137,7 @@ const RegisterPage = () => {
 										className=" w-full flex-1 appearance-none rounded-lg border border-transparent border-gray-300 bg-white py-2 px-4 text-base text-gray-700 placeholder-gray-400 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-600"
 										placeholder="First Name"
 										{...register("firstName", {
-											required: true,
+											required: "Field is required",
 										})}
 									/>
 									<span className="flex-items-center justify-center text-center text-sm text-red-500 dark:text-red-400">
@@ -155,7 +153,7 @@ const RegisterPage = () => {
 										className=" w-full flex-1 appearance-none rounded-lg border border-transparent border-gray-300 bg-white py-2 px-4 text-base text-gray-700 placeholder-gray-400 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-600"
 										placeholder="Middle Name"
 										{...register("middleName", {
-											required: true,
+											required: "Field is required",
 										})}
 									/>
 									<span className="flex-items-center justify-center text-center text-sm text-red-500 dark:text-red-400">
@@ -171,7 +169,7 @@ const RegisterPage = () => {
 										className=" w-full flex-1 appearance-none rounded-lg border border-transparent border-gray-300 bg-white py-2 px-4 text-base text-gray-700 placeholder-gray-400 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-600"
 										placeholder="Last Name"
 										{...register("lastName", {
-											required: true,
+											required: "Field is required",
 										})}
 									/>
 									<span className="flex-items-center justify-center text-center text-sm text-red-500 dark:text-red-400">
@@ -187,7 +185,7 @@ const RegisterPage = () => {
 										className=" w-full flex-1 appearance-none rounded-lg border border-transparent border-gray-300 bg-white py-2 px-4 text-base text-gray-700 placeholder-gray-400 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-600"
 										placeholder="Mobile (09876543210)"
 										{...register("mobileNumber", {
-											required: true,
+											required: "Field is required",
 											//TODO: add regex pattern
 										})}
 									/>
@@ -204,7 +202,7 @@ const RegisterPage = () => {
 										className=" w-full flex-1 appearance-none rounded-lg border border-transparent border-gray-300 bg-white py-2 px-4 text-base text-gray-700 placeholder-gray-400 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-600"
 										placeholder="Home Address"
 										{...register("address", {
-											required: true,
+											required: "Field is required",
 										})}
 									/>
 									<span className="flex-items-center justify-center text-center text-sm text-red-500 dark:text-red-400">
@@ -220,7 +218,7 @@ const RegisterPage = () => {
 										className=" w-full flex-1 appearance-none rounded-lg border border-transparent border-gray-300 bg-white py-2 px-4 text-base text-gray-700 placeholder-gray-400 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-600"
 										placeholder="Email"
 										{...register("email", {
-											required: true,
+											required: "Field is required",
 										})}
 									/>
 									<span className="flex-items-center justify-center text-center text-sm text-red-500 dark:text-red-400">
@@ -235,7 +233,7 @@ const RegisterPage = () => {
 										className=" w-full flex-1 appearance-none rounded-lg border border-transparent border-gray-300 bg-white py-2 px-4 text-base text-gray-700 placeholder-gray-400 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-600"
 										placeholder="Password"
 										{...register("password", {
-											required: true,
+											required: "Field is required",
 											minLength: 6,
 										})}
 									/>
@@ -252,7 +250,7 @@ const RegisterPage = () => {
 										className=" w-full flex-1 appearance-none rounded-lg border border-transparent border-gray-300 bg-white py-2 px-4 text-base text-gray-700 placeholder-gray-400 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-600"
 										placeholder="Confirm Password"
 										{...register("confirmPassword", {
-											required: true,
+											required: "Field is required",
 											validate: (val: string) => {
 												if (watch("password") != val) {
 													return "Your passwords do no match";
@@ -267,7 +265,7 @@ const RegisterPage = () => {
 								</div>
 							</div>
 							<RoleDataInputs
-								role={getValues("role")}
+								role={role}
 								register={register}
 								errors={errors}
 							/>
@@ -301,46 +299,43 @@ type RoleDataProps = {
 	errors: Partial<FieldErrorsImpl<RegisterInputs>>;
 };
 const RoleDataInputs = ({ role, register, errors }: RoleDataProps) => {
-	switch (role) {
-		case Roles.STUDENT:
-			return (
-				<>
-					<div className="mb-2 flex flex-col">
-						<div className=" relative ">
-							<input
-								type="text"
-								className=" w-full flex-1 appearance-none rounded-lg border border-transparent border-gray-300 bg-white py-2 px-4 text-base text-gray-700 placeholder-gray-400 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-600"
-								placeholder="Course"
-								{...register("course", {
-									required: true,
-								})}
-							/>
-							<span className="flex-items-center justify-center text-center text-sm text-red-500 dark:text-red-400">
-								{errors.course && errors.course.message}
-							</span>
-						</div>
+	if (role === Roles.STUDENT) {
+		return (
+			<>
+				<div className="mb-2 flex flex-col">
+					<div className=" relative ">
+						<input
+							type="text"
+							className=" w-full flex-1 appearance-none rounded-lg border border-transparent border-gray-300 bg-white py-2 px-4 text-base text-gray-700 placeholder-gray-400 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-600"
+							placeholder="Course"
+							{...register("course", {
+								required: "Field is required",
+							})}
+						/>
+						<span className="flex-items-center justify-center text-center text-sm text-red-500 dark:text-red-400">
+							{errors.course && errors.course.message}
+						</span>
 					</div>
-					<div className="mb-2 flex flex-col">
-						<div className=" relative ">
-							<input
-								type="text"
-								className=" w-full flex-1 appearance-none rounded-lg border border-transparent border-gray-300 bg-white py-2 px-4 text-base text-gray-700 placeholder-gray-400 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-600"
-								placeholder="Year"
-								{...register("year", {
-									required: true,
-								})}
-							/>
-							<span className="flex-items-center justify-center text-center text-sm text-red-500 dark:text-red-400">
-								{errors.year && errors.year.message}
-							</span>
-						</div>
+				</div>
+				<div className="mb-2 flex flex-col">
+					<div className=" relative ">
+						<input
+							type="text"
+							className=" w-full flex-1 appearance-none rounded-lg border border-transparent border-gray-300 bg-white py-2 px-4 text-base text-gray-700 placeholder-gray-400 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-600"
+							placeholder="Year"
+							{...register("year", {
+								required: "Field is required",
+							})}
+						/>
+						<span className="flex-items-center justify-center text-center text-sm text-red-500 dark:text-red-400">
+							{errors.year && errors.year.message}
+						</span>
 					</div>
-				</>
-			);
-
-		default:
-			return null;
+				</div>
+			</>
+		);
 	}
+	return null;
 };
 
 export default RegisterPage;

@@ -11,7 +11,7 @@ export const Roles = {
 	ADMIN: "admin",
 } as const;
 export type Role = typeof Roles[keyof typeof Roles];
-export type RoleData = StudentData;
+export type RoleData = StudentData | FacultyData | CashierData | AdminData;
 
 export type RegisterDefaults =
 	| "disabled"
@@ -21,6 +21,7 @@ export type RegisterDefaults =
 	| "updatedAt"
 	| "transactions"
 	| "transactionCount";
+
 export interface UserData {
 	email: string;
 	firstName: string;
@@ -40,6 +41,11 @@ export interface UserData {
 	transactionCount: number;
 }
 
+export type RegisterData = Omit<
+	UserData & StudentData & FacultyData & CashierData & AdminData,
+	RegisterDefaults
+>;
+
 type TransactionType = "send" | "receive" | "cash in";
 
 interface TransactionReference {
@@ -54,42 +60,88 @@ interface StudentData {
 	updatedAt: Timestamp;
 }
 
+interface FacultyData {
+	createdAt: Timestamp;
+	updatedAt: Timestamp;
+}
+
+interface CashierData {
+	createdAt: Timestamp;
+	updatedAt: Timestamp;
+}
+
+interface AdminData {
+	createdAt: Timestamp;
+	updatedAt: Timestamp;
+}
+
 interface ContextValues {
-	userData: UserData;
+	currentUserData: UserData;
 	addUser: (
 		uid: string,
-		userData: Omit<UserData & RoleData, RegisterDefaults>
+		registerData: RegisterData
 	) => Promise<void> | undefined;
 }
 
 const FirestoreContext = createContext<ContextValues>({} as ContextValues);
 
 const FirestoreProvider = ({ children }: { children: JSX.Element | null }) => {
-	const [userData, setUserData] = useState<UserData>({} as UserData);
+	const [currentUserData, setCurrentUserData] = useState<UserData>(
+		{} as UserData
+	);
 	const [loading, setLoading] = useState(true);
 	const { currentUser } = useContext(AuthContext);
 
-	const addUser = async (
-		uid: string,
-		userData: Omit<UserData & RoleData, RegisterDefaults>
-	) => {
+	const addUser = async (uid: string, registerData: RegisterData) => {
 		try {
-			const docData: Omit<UserData & RoleData, "transactions"> = {
+			const userData: Omit<UserData, "transactions"> = {
+				email: registerData.email,
+				firstName: registerData.firstName,
+				middleName: registerData.middleName,
+				lastName: registerData.lastName,
+				mobileNumber: registerData.mobileNumber,
+				address: registerData.address,
+				idNumber: registerData.idNumber,
+				role: registerData.role,
+				// defaults
 				disabled: false,
 				funds: 0,
 				pin: null,
 				transactionCount: 0,
 				createdAt: Timestamp.now(),
 				updatedAt: Timestamp.now(),
-				...userData,
 			};
-			await setDoc(doc(db, "users", uid), docData);
-			const { role, course, year } = userData;
-			const { createdAt, updatedAt } = docData;
-			switch (role) {
+			await setDoc(doc(db, "users", uid), userData);
+			switch (registerData.role) {
 				case Roles.STUDENT:
-					const studentData = { course, year, createdAt, updatedAt };
-					addStudent(uid, studentData);
+					const studentData: StudentData = {
+						course: registerData.course,
+						year: registerData.year,
+						createdAt: userData.createdAt,
+						updatedAt: userData.updatedAt,
+					};
+					addToRole(Roles.STUDENT, uid, studentData);
+					break;
+				case Roles.FACULTY:
+					const facultyData: FacultyData = {
+						createdAt: userData.createdAt,
+						updatedAt: userData.updatedAt,
+					};
+					addToRole(Roles.FACULTY, uid, facultyData);
+					break;
+				case Roles.CASHIER:
+					const cashierData: CashierData = {
+						createdAt: userData.createdAt,
+						updatedAt: userData.updatedAt,
+					};
+					addToRole(Roles.CASHIER, uid, cashierData);
+					break;
+				case Roles.ADMIN:
+					const adminData: AdminData = {
+						createdAt: userData.createdAt,
+						updatedAt: userData.updatedAt,
+					};
+					addToRole(Roles.ADMIN, uid, adminData);
 					break;
 				default:
 					break;
@@ -99,11 +151,15 @@ const FirestoreProvider = ({ children }: { children: JSX.Element | null }) => {
 		}
 	};
 
-	const addStudent = async (uid: string, studentData: StudentData) => {
+	const addToRole = async (
+		collection: Role,
+		uid: string,
+		roleData: RoleData
+	) => {
 		try {
-			await setDoc(doc(db, "students", uid), { ...studentData });
+			await setDoc(doc(db, collection, uid), { ...roleData });
 		} catch (err) {
-			return console.log("addStudent", err);
+			return console.log(`add to ${collection}`, err);
 		}
 	};
 
@@ -116,7 +172,7 @@ const FirestoreProvider = ({ children }: { children: JSX.Element | null }) => {
 
 			if (docSnap.exists()) {
 				const data = docSnap.data();
-				setUserData({
+				setCurrentUserData({
 					role: data.role,
 					disabled: data.disabled,
 					createdAt: data.createdAt,
@@ -132,7 +188,7 @@ const FirestoreProvider = ({ children }: { children: JSX.Element | null }) => {
 		getUser();
 	}, [currentUser]);
 
-	const value = { userData, addUser, addStudent };
+	const value: ContextValues = { currentUserData, addUser };
 
 	return (
 		<FirestoreContext.Provider value={value}>
