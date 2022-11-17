@@ -1,5 +1,15 @@
-import type { CollectionReference } from "firebase/firestore";
-import { doc, getDoc, setDoc, Timestamp } from "firebase/firestore";
+import type { FieldValue } from "firebase/firestore";
+import {
+	addDoc,
+	collection,
+	doc,
+	getDoc,
+	getDocs,
+	query,
+	serverTimestamp,
+	setDoc,
+	where,
+} from "firebase/firestore";
 import { createContext, useContext, useEffect, useState } from "react";
 import { db } from "../lib/firebase";
 import { AuthContext } from "./AuthContext";
@@ -12,14 +22,12 @@ export const Roles = {
 } as const;
 export type Role = typeof Roles[keyof typeof Roles];
 export type RoleData = StudentData | FacultyData | CashierData | AdminData;
-
 export type RegisterDefaults =
 	| "disabled"
 	| "funds"
 	| "pin"
 	| "createdAt"
 	| "updatedAt"
-	| "transactions"
 	| "transactionCount";
 
 export interface UserData {
@@ -35,9 +43,8 @@ export interface UserData {
 	disabled: boolean;
 	funds: number;
 	pin: string | null;
-	createdAt: Timestamp;
-	updatedAt: Timestamp;
-	transactions: TransactionReference[];
+	createdAt: FieldValue;
+	updatedAt: FieldValue;
 	transactionCount: number;
 }
 
@@ -46,33 +53,49 @@ export type RegisterData = Omit<
 	RegisterDefaults
 >;
 
-type TransactionType = "send" | "receive" | "cash in";
-
-interface TransactionReference {
-	type: TransactionType;
-	transaction: CollectionReference;
-}
-
 interface StudentData {
 	course: string;
 	year: string;
-	createdAt: Timestamp;
-	updatedAt: Timestamp;
+	createdAt: FieldValue;
+	updatedAt: FieldValue;
 }
 
 interface FacultyData {
-	createdAt: Timestamp;
-	updatedAt: Timestamp;
+	createdAt: FieldValue;
+	updatedAt: FieldValue;
 }
 
 interface CashierData {
-	createdAt: Timestamp;
-	updatedAt: Timestamp;
+	createdAt: FieldValue;
+	updatedAt: FieldValue;
 }
 
 interface AdminData {
-	createdAt: Timestamp;
-	updatedAt: Timestamp;
+	createdAt: FieldValue;
+	updatedAt: FieldValue;
+}
+
+const TransactionTypes = {
+	SEND: "send",
+	RECEIVE: "receive",
+	CASH_IN: "cash in",
+} as const;
+type TransactionType = typeof TransactionTypes[keyof typeof TransactionTypes];
+
+interface TransactionReference {
+	type: TransactionType;
+	transaction: string;
+}
+
+interface Transaction {
+	type: TransactionType;
+	amount: number;
+	sender: string;
+	receiver: string;
+	message: string | null;
+	createdAt: FieldValue;
+	updatedAt: FieldValue;
+	updatedBy: string | null;
 }
 
 interface ContextValues {
@@ -81,6 +104,13 @@ interface ContextValues {
 		uid: string,
 		registerData: RegisterData
 	) => Promise<void> | undefined;
+	addTransaction: (
+		type: TransactionType,
+		senderData: UserData,
+		receiverData: UserData,
+		amount: number,
+		message: string
+	) => Promise<void>;
 }
 
 const FirestoreContext = createContext<ContextValues>({} as ContextValues);
@@ -94,7 +124,11 @@ const FirestoreProvider = ({ children }: { children: JSX.Element | null }) => {
 
 	const addUser = async (uid: string, registerData: RegisterData) => {
 		try {
-			const userData: Omit<UserData, "transactions"> = {
+			const timestamps = {
+				createdAt: serverTimestamp(),
+				updatedAt: serverTimestamp(),
+			};
+			const userData: UserData = {
 				email: registerData.email,
 				firstName: registerData.firstName,
 				middleName: registerData.middleName,
@@ -108,39 +142,30 @@ const FirestoreProvider = ({ children }: { children: JSX.Element | null }) => {
 				funds: 0,
 				pin: null,
 				transactionCount: 0,
-				createdAt: Timestamp.now(),
-				updatedAt: Timestamp.now(),
+				...timestamps,
 			};
+			// add to users table
 			await setDoc(doc(db, "users", uid), userData);
+
 			switch (registerData.role) {
 				case Roles.STUDENT:
 					const studentData: StudentData = {
 						course: registerData.course,
 						year: registerData.year,
-						createdAt: userData.createdAt,
-						updatedAt: userData.updatedAt,
+						...timestamps,
 					};
 					addToRole(Roles.STUDENT, uid, studentData);
 					break;
 				case Roles.FACULTY:
-					const facultyData: FacultyData = {
-						createdAt: userData.createdAt,
-						updatedAt: userData.updatedAt,
-					};
+					const facultyData: FacultyData = { ...timestamps };
 					addToRole(Roles.FACULTY, uid, facultyData);
 					break;
 				case Roles.CASHIER:
-					const cashierData: CashierData = {
-						createdAt: userData.createdAt,
-						updatedAt: userData.updatedAt,
-					};
+					const cashierData: CashierData = { ...timestamps };
 					addToRole(Roles.CASHIER, uid, cashierData);
 					break;
 				case Roles.ADMIN:
-					const adminData: AdminData = {
-						createdAt: userData.createdAt,
-						updatedAt: userData.updatedAt,
-					};
+					const adminData: AdminData = { ...timestamps };
 					addToRole(Roles.ADMIN, uid, adminData);
 					break;
 				default:
@@ -163,6 +188,65 @@ const FirestoreProvider = ({ children }: { children: JSX.Element | null }) => {
 		}
 	};
 
+	const addTransaction = async (
+		type: TransactionType,
+		senderData: UserData,
+		receiverData: UserData,
+		amount: number,
+		message: string
+	) => {
+		const timestamps = {
+			createdAt: serverTimestamp(),
+			updatedAt: serverTimestamp(),
+		};
+		const transactionData: Transaction = {
+			type,
+			amount,
+			sender: senderData.idNumber,
+			receiver: receiverData.idNumber,
+			message,
+			updatedBy: null,
+			...timestamps,
+		};
+		try {
+			const { id: transactionId } = await addDoc(
+				collection(db, "transactions"),
+				transactionData
+			);
+			const transactionReferenceData: TransactionReference = {
+				type,
+				transaction: transactionId,
+			};
+			// get UIDs
+			const senderUid = await getUidFromIdNumber(senderData.idNumber);
+			const receiverUid = await getUidFromIdNumber(receiverData.idNumber);
+			// save transaction reference for each user sub collection
+			// for sender
+			const senderDocRef = doc(db, "users", senderUid);
+			const senderColRef = collection(senderDocRef, "transactions");
+			addDoc(senderColRef, transactionReferenceData);
+			// for receiver
+			const receiverDocRef = doc(db, "users", receiverUid);
+			const receiverColRef = collection(receiverDocRef, "transactions");
+			addDoc(receiverColRef, transactionReferenceData);
+		} catch (err) {
+			return console.log("addTransaction", err);
+		}
+	};
+
+	const getUidFromIdNumber = async (idNumber: string): Promise<string> => {
+		const q = query(
+			collection(db, "users"),
+			where("idNumber", "==", idNumber)
+		);
+		const docSnap = await getDocs(q);
+		if (docSnap.docs[0]?.exists()) {
+			return docSnap.docs[0].id;
+		}
+		// doc.data() will be undefined in this case
+		throw new Error("ID Number does not exist!");
+	};
+
 	useEffect(() => {
 		const getUser = async () => {
 			if (!currentUser) return setLoading(false);
@@ -172,12 +256,8 @@ const FirestoreProvider = ({ children }: { children: JSX.Element | null }) => {
 
 			if (docSnap.exists()) {
 				const data = docSnap.data();
-				setCurrentUserData({
-					role: data.role,
-					disabled: data.disabled,
-					createdAt: data.createdAt,
-					updatedAt: data.updatedAt,
-				} as UserData);
+				setCurrentUserData({ ...data } as UserData);
+				console.log({ ...data } as UserData);
 			} else {
 				// doc.data() will be undefined in this case
 				console.log("No such document!");
@@ -188,7 +268,7 @@ const FirestoreProvider = ({ children }: { children: JSX.Element | null }) => {
 		getUser();
 	}, [currentUser]);
 
-	const value: ContextValues = { currentUserData, addUser };
+	const value: ContextValues = { currentUserData, addUser, addTransaction };
 
 	return (
 		<FirestoreContext.Provider value={value}>
