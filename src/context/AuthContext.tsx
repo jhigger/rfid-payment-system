@@ -42,7 +42,7 @@ const AuthProvider = ({ children }: { children: JSX.Element | null }) => {
 		return unsubscribe;
 	}, []);
 
-	const value = {
+	const value: ContextValues = {
 		currentUser,
 		signup,
 		login,
