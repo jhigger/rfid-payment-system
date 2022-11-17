@@ -11,7 +11,7 @@ import { FirestoreContext, Roles } from "../context/FirestoreContext";
 const Home: NextPage = () => {
 	const router = useRouter();
 	const { currentUser, logout } = useContext(AuthContext);
-	const { userData } = useContext(FirestoreContext);
+	const { currentUserData } = useContext(FirestoreContext);
 
 	const handleLogout = () => {
 		logout().catch((err) => console.log(err.message));
@@ -22,39 +22,25 @@ const Home: NextPage = () => {
 		return null;
 	}
 
-	if (userData.disabled) {
+	if (currentUserData.disabled) {
 		return (
 			<main className="container mx-auto flex min-h-screen flex-col items-center justify-center p-4">
 				<h1 className="text-5xl font-extrabold leading-normal text-gray-700 md:text-[5rem]">
 					Account Disabled
 				</h1>
-				<button
-					type="button"
-					className="flex w-max items-center justify-center rounded-lg  bg-red-600 py-2 px-4 text-center text-base font-semibold text-white shadow-md transition duration-200 ease-in hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2  focus:ring-offset-red-200 "
-					onClick={handleLogout}
-				>
-					<FaSignOutAlt className="mr-2" />
-					Logout
-				</button>
+				<LogoutButton handleLogout={handleLogout} />
 			</main>
 		);
 	}
 
-	const authorized: Role[] = [Roles.ADMIN, Roles.CASHIER];
-	if (!authorized.includes(userData.role)) {
+	const authorizedUsers: Role[] = [Roles.ADMIN, Roles.CASHIER];
+	if (!authorizedUsers.includes(currentUserData.role)) {
 		return (
 			<main className="container mx-auto flex min-h-screen flex-col items-center justify-center p-4">
 				<h1 className="text-5xl font-extrabold leading-normal text-gray-700 md:text-[5rem]">
-					Admin/Cashier Only
+					Authorized Users Only
 				</h1>
-				<button
-					type="button"
-					className="flex w-max items-center justify-center rounded-lg  bg-red-600 py-2 px-4 text-center text-base font-semibold text-white shadow-md transition duration-200 ease-in hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2  focus:ring-offset-red-200 "
-					onClick={handleLogout}
-				>
-					<FaSignOutAlt className="mr-2" />
-					Logout
-				</button>
+				<LogoutButton handleLogout={handleLogout} />
 			</main>
 		);
 	}
@@ -75,27 +61,41 @@ const Home: NextPage = () => {
 					{`Hello, ${currentUser.email}!`}
 				</h1>
 				<h2 className="text-5xl font-extrabold leading-normal text-gray-700 md:text-[5rem]">
-					{`Role: ${userData.role}`}
+					{`Role: ${currentUserData.role}`}
 				</h2>
-				<button
-					type="button"
-					className="flex w-max items-center justify-center rounded-lg  bg-red-600 py-2 px-4 text-center text-base font-semibold text-white shadow-md transition duration-200 ease-in hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2  focus:ring-offset-red-200 "
-					onClick={handleLogout}
-				>
-					<FaSignOutAlt className="mr-2" />
-					Logout
-				</button>
-				<Link href="/register">
-					<button
-						type="button"
-						className="flex w-max items-center justify-center rounded-lg  bg-blue-600 py-2 px-4 text-center text-base font-semibold text-white shadow-md transition duration-200 ease-in hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2  focus:ring-offset-blue-200 "
-					>
-						<FaUserCircle className="mr-2" />
-						Create an account
-					</button>
-				</Link>
+				<LogoutButton handleLogout={handleLogout} />
+				{currentUserData.role === Roles.ADMIN && (
+					<CreateAccountButton />
+				)}
 			</main>
 		</>
+	);
+};
+
+const LogoutButton = ({ handleLogout }: { handleLogout: () => void }) => {
+	return (
+		<button
+			type="button"
+			className="flex w-max items-center justify-center rounded-lg  bg-red-600 py-2 px-4 text-center text-base font-semibold text-white shadow-md transition duration-200 ease-in hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2  focus:ring-offset-red-200 "
+			onClick={handleLogout}
+		>
+			<FaSignOutAlt className="mr-2" />
+			Logout
+		</button>
+	);
+};
+
+const CreateAccountButton = () => {
+	return (
+		<Link href="/register">
+			<button
+				type="button"
+				className="flex w-max items-center justify-center rounded-lg  bg-blue-600 py-2 px-4 text-center text-base font-semibold text-white shadow-md transition duration-200 ease-in hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2  focus:ring-offset-blue-200 "
+			>
+				<FaUserCircle className="mr-2" />
+				Create an account
+			</button>
+		</Link>
 	);
 };
 
