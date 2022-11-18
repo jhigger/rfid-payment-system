@@ -87,7 +87,7 @@ interface TransactionReference {
 	transaction: string;
 }
 
-interface Transaction {
+interface TransactionData {
 	type: TransactionType;
 	amount: number;
 	sender: string;
@@ -199,7 +199,7 @@ const FirestoreProvider = ({ children }: { children: JSX.Element | null }) => {
 			createdAt: serverTimestamp(),
 			updatedAt: serverTimestamp(),
 		};
-		const transactionData: Transaction = {
+		const transactionData: TransactionData = {
 			type,
 			amount,
 			sender: senderData.idNumber,
