@@ -146,7 +146,7 @@ const FirestoreProvider = ({ children }: { children: JSX.Element | null }) => {
 			};
 			// add to users table
 			await setDoc(doc(db, "users", uid), userData);
-
+			// add to respective role table
 			switch (registerData.role) {
 				case Roles.STUDENT:
 					const studentData: StudentData = {
@@ -257,7 +257,6 @@ const FirestoreProvider = ({ children }: { children: JSX.Element | null }) => {
 			if (docSnap.exists()) {
 				const data = docSnap.data();
 				setCurrentUserData({ ...data } as UserData);
-				console.log({ ...data } as UserData);
 			} else {
 				// doc.data() will be undefined in this case
 				console.log("No such document!");
