@@ -1,5 +1,4 @@
 import type { UserRecord } from "firebase-admin/lib/auth/user-record";
-import { FirebaseError } from "firebase/app";
 import Head from "next/head";
 import { useContext, useState } from "react";
 import type { FieldErrorsImpl, UseFormRegister } from "react-hook-form";
@@ -26,6 +25,7 @@ const RegisterPage = () => {
 		handleSubmit,
 		watch,
 		formState: { errors },
+		reset,
 	} = useForm<RegisterInputs>();
 
 	const signup = (userUid: string, email: string, password: string) => {
@@ -37,7 +37,7 @@ const RegisterPage = () => {
 				password,
 			}),
 			headers: { "Content-type": "application/json; charset=UTF-8" },
-		}).then((res) => res.json());
+		});
 		return res;
 	};
 
@@ -53,24 +53,26 @@ const RegisterPage = () => {
 		setIsLoading(true);
 		setFormError("");
 		signup(currentUser.uid, email, password)
-			.then((res: UserRecord) => {
-				const uid = res.uid;
+			.then(async (res) => {
+				const json = (await res.json()) as UserRecord;
+				const uid = json.uid;
 				// generate defaults
 				const userData = {
 					email,
 					...rest,
 				};
 				// add to user table
-				addUser(uid, userData).then(() =>
-					console.log("User created successfully!")
-				);
+				addUser(uid, userData)
+					.then(() => {
+						alert("User created successfully!");
+						reset();
+					})
+					.catch(() => {
+						setFormError("ID Number already exists.");
+					});
 			})
 			.catch((err) => {
-				if (err instanceof FirebaseError) {
-					setFormError(err.message);
-				} else {
-					console.log(err);
-				}
+				setFormError(err.message);
 			})
 			.finally(() => setIsLoading(false));
 	};
