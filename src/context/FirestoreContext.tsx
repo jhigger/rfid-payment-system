@@ -5,9 +5,11 @@ import {
 	doc,
 	getDoc,
 	getDocs,
+	increment,
 	query,
 	serverTimestamp,
 	setDoc,
+	updateDoc,
 	where,
 } from "firebase/firestore";
 import { createContext, useContext, useEffect, useState } from "react";
@@ -215,11 +217,23 @@ const FirestoreProvider = ({ children }: { children: JSX.Element | null }) => {
 		// for sender
 		const senderDocRef = doc(db, "users", senderUid);
 		const senderColRef = collection(senderDocRef, "transactions");
-		addDoc(senderColRef, transactionReferenceData);
+		await addDoc(senderColRef, transactionReferenceData);
 		// for receiver
 		const receiverDocRef = doc(db, "users", receiverUid);
 		const receiverColRef = collection(receiverDocRef, "transactions");
-		addDoc(receiverColRef, transactionReferenceData);
+		await addDoc(receiverColRef, transactionReferenceData);
+		await addFunds(receiverUid, { amount, updatedAt: timestamps.updatedAt });
+	};
+
+	const addFunds = async (
+		uid: string,
+		{ amount, updatedAt }: { amount: number; updatedAt: FieldValue }
+	) => {
+		const docRef = doc(db, "users", uid);
+		await updateDoc(docRef, {
+			funds: increment(amount),
+			updatedAt,
+		});
 	};
 
 	const getUidFromIdNumber = async (idNumber: string): Promise<string> => {
