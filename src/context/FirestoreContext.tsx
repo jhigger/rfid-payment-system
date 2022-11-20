@@ -102,7 +102,7 @@ interface TransactionData {
 }
 
 interface ContextValues {
-	currentUserData: UserData;
+	currentUserData: UserData | null;
 	addUser: (uid: string, registerData: RegisterData) => Promise<void>;
 	addTransaction: (
 		type: TransactionType,
@@ -116,8 +116,8 @@ interface ContextValues {
 const FirestoreContext = createContext<ContextValues>({} as ContextValues);
 
 const FirestoreProvider = ({ children }: { children: JSX.Element | null }) => {
-	const [currentUserData, setCurrentUserData] = useState<UserData>(
-		{} as UserData
+	const [currentUserData, setCurrentUserData] = useState<UserData | null>(
+		null
 	);
 	const [loading, setLoading] = useState(true);
 	const { currentUser } = useContext(AuthContext);
@@ -256,7 +256,7 @@ const FirestoreProvider = ({ children }: { children: JSX.Element | null }) => {
 
 	useEffect(() => {
 		const getUser = async () => {
-			if (!currentUser) return setLoading(false);
+			if (!currentUser) return setCurrentUserData(null);
 
 			const docRef = doc(db, "users", currentUser.uid);
 			const docSnap = await getDoc(docRef);
@@ -268,13 +268,16 @@ const FirestoreProvider = ({ children }: { children: JSX.Element | null }) => {
 				// doc.data() will be undefined in this case
 				console.log("No such document!");
 			}
-			setLoading(false);
 		};
 
-		getUser();
+		getUser().finally(() => setLoading(false));
 	}, [currentUser]);
 
-	const value: ContextValues = { currentUserData, addUser, addTransaction };
+	const value: ContextValues = {
+		currentUserData,
+		addUser,
+		addTransaction,
+	};
 
 	return (
 		<FirestoreContext.Provider value={value}>

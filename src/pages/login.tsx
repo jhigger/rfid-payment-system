@@ -1,7 +1,7 @@
 import { FirebaseError } from "firebase/app";
 import Head from "next/head";
 import { useRouter } from "next/router";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import { FaEnvelope, FaSpinner, FaUnlock } from "react-icons/fa";
 import { AuthContext } from "../context/AuthContext";
@@ -27,9 +27,6 @@ const LoginPage = () => {
 		setIsLoading(true);
 		setFormError("");
 		login(email, password)
-			.then(() => {
-				router.replace("/");
-			})
 			.catch((err) => {
 				if (err instanceof FirebaseError) {
 					setFormError(err.message);
@@ -40,10 +37,11 @@ const LoginPage = () => {
 			.finally(() => setIsLoading(false));
 	};
 
-	if (currentUser) {
-		router.push("/");
-		return null;
-	}
+	useEffect(() => {
+		if (currentUser) {
+			router.push("/");
+		}
+	}, [currentUser, router]);
 
 	return (
 		<>

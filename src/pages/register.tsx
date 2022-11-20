@@ -77,6 +77,16 @@ const RegisterPage = () => {
 			.finally(() => setIsLoading(false));
 	};
 
+	if (!currentUserData) {
+		return (
+			<main className="container mx-auto flex min-h-screen flex-col items-center justify-center p-4">
+				<h1 className="text-5xl font-extrabold leading-normal text-gray-700 md:text-[5rem]">
+					Loading...
+				</h1>
+			</main>
+		);
+	}
+
 	if (currentUserData.role !== Roles.ADMIN) {
 		return (
 			<main className="container mx-auto flex min-h-screen flex-col items-center justify-center p-4">

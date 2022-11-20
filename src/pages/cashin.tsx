@@ -1,5 +1,6 @@
 import Head from "next/head";
-import { useContext, useState } from "react";
+import { useRouter } from "next/router";
+import { useContext, useEffect, useState } from "react";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import { FaSpinner } from "react-icons/fa";
 import LogoutButton from "../components/LogoutButton";
@@ -8,12 +9,14 @@ import type { CashInData, Role } from "../context/FirestoreContext";
 import {
 	FirestoreContext,
 	Roles,
-	TransactionTypes,
+	TransactionTypes
 } from "../context/FirestoreContext";
 
 type CashInInputs = CashInData;
 
 const CashInPage = () => {
+	const router = useRouter();
+
 	const [isLoading, setIsLoading] = useState(false);
 	const [formError, setFormError] = useState("");
 	const { currentUser, logout } = useContext(AuthContext);
@@ -27,7 +30,7 @@ const CashInPage = () => {
 	} = useForm<CashInInputs>();
 
 	const onSubmit: SubmitHandler<CashInInputs> = ({ receiver, amount }) => {
-		if (!currentUser) return;
+		if (!currentUser || !currentUserData) return;
 
 		setIsLoading(true);
 		setFormError("");
@@ -51,6 +54,22 @@ const CashInPage = () => {
 	const handleLogout = () => {
 		logout().catch((err) => console.log(err.message));
 	};
+
+	useEffect(() => {
+		if (!currentUser) {
+			router.push("/login");
+		}
+	}, [currentUser, router]);
+
+	if (!currentUserData) {
+		return (
+			<main className="container mx-auto flex min-h-screen flex-col items-center justify-center p-4">
+				<h1 className="text-5xl font-extrabold leading-normal text-gray-700 md:text-[5rem]">
+					Loading...
+				</h1>
+			</main>
+		);
+	}
 
 	const authorizedUsers: Role[] = [Roles.ADMIN, Roles.CASHIER];
 	if (!authorizedUsers.includes(currentUserData.role)) {

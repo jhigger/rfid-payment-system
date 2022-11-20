@@ -2,7 +2,7 @@ import { type NextPage } from "next";
 import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import { FaUserCircle } from "react-icons/fa";
 import LogoutButton from "../components/LogoutButton";
 import { AuthContext } from "../context/AuthContext";
@@ -18,9 +18,24 @@ const Home: NextPage = () => {
 		logout().catch((err) => console.log(err.message));
 	};
 
+	useEffect(() => {
+		if (!currentUser) {
+			router.push("/login");
+		}
+	}, [currentUser, router]);
+
 	if (!currentUser) {
-		router.push("/login");
 		return null;
+	}
+
+	if (!currentUserData) {
+		return (
+			<main className="container mx-auto flex min-h-screen flex-col items-center justify-center p-4">
+				<h1 className="text-5xl font-extrabold leading-normal text-gray-700 md:text-[5rem]">
+					Loading...
+				</h1>
+			</main>
+		);
 	}
 
 	if (currentUserData.disabled) {
@@ -57,15 +72,14 @@ const Home: NextPage = () => {
 				<link rel="icon" href="/favicon.ico" />
 			</Head>
 
-			<main className="container mx-auto flex min-h-screen flex-col items-center justify-center p-4">
-				<h1 className="text-5xl font-extrabold leading-normal text-gray-700 md:text-[5rem]">
+			<main className="container mx-auto flex min-h-screen flex-col flex-wrap items-center justify-center p-4">
+				<h1 className="text-5xl font-extrabold leading-normal text-gray-700">
 					{`Hello, ${currentUser.email}!`}
 				</h1>
-				<h2 className="text-5xl font-extrabold leading-normal text-gray-700 md:text-[5rem]">
+				<h2 className="text-5xl font-extrabold leading-normal text-gray-700">
 					{`Role: ${currentUserData.role}`}
 				</h2>
-
-				<div className="min-w-xl flex gap-4">
+				<div className="flex max-w-xl flex-wrap gap-4">
 					<LogoutButton handleLogout={handleLogout} />
 					{authorizedUsers.includes(currentUserData.role) && (
 						<CashInButton />
