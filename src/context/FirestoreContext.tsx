@@ -180,7 +180,7 @@ const FirestoreProvider = ({ children }: { children: JSX.Element | null }) => {
 		try {
 			await setDoc(doc(db, collection, uid), { ...roleData });
 		} catch (err) {
-			return console.log(`add to ${collection}`, err);
+			return Promise.reject(new Error(`add to ${collection}: ${err}`));
 		}
 	};
 
