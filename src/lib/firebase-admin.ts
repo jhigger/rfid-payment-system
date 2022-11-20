@@ -1,11 +1,10 @@
 import type { ServiceAccount } from "firebase-admin";
 import admin from "firebase-admin";
-
-const serviceAccount = process.env.NEXT_PUBLIC_FIREBASE_ADMIN as ServiceAccount;
+import serviceAccount from "./serviceAccount.json";
 
 try {
 	admin.initializeApp({
-		credential: admin.credential.cert(serviceAccount),
+		credential: admin.credential.cert(serviceAccount as ServiceAccount),
 	});
 	console.log("Admin Initialized.");
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any

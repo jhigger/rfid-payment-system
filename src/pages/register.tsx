@@ -1,6 +1,6 @@
+import type { UserRecord } from "firebase-admin/lib/auth/user-record";
 import { FirebaseError } from "firebase/app";
 import Head from "next/head";
-import { useRouter } from "next/router";
 import { useContext, useState } from "react";
 import type { FieldErrorsImpl, UseFormRegister } from "react-hook-form";
 import { useForm, type SubmitHandler } from "react-hook-form";
@@ -15,11 +15,10 @@ interface RegisterInputs extends RegisterData {
 }
 
 const RegisterPage = () => {
-	const router = useRouter();
 	const [isLoading, setIsLoading] = useState(false);
 	const [formError, setFormError] = useState("");
 	const [role, setRole] = useState<Role>("student");
-	const { signup } = useContext(AuthContext);
+	const { currentUser } = useContext(AuthContext);
 	const { currentUserData, addUser } = useContext(FirestoreContext);
 
 	const {
@@ -29,6 +28,19 @@ const RegisterPage = () => {
 		formState: { errors },
 	} = useForm<RegisterInputs>();
 
+	const signup = (userUid: string, email: string, password: string) => {
+		const res = fetch("/api/create/user", {
+			method: "POST",
+			body: JSON.stringify({
+				userUid,
+				email,
+				password,
+			}),
+			headers: { "Content-type": "application/json; charset=UTF-8" },
+		}).then((res) => res.json());
+		return res;
+	};
+
 	const onSubmit: SubmitHandler<RegisterInputs> = ({
 		email,
 		password,
@@ -36,11 +48,13 @@ const RegisterPage = () => {
 		confirmPassword,
 		...rest
 	}) => {
+		if (!currentUser) return;
+
 		setIsLoading(true);
 		setFormError("");
-		signup(email, password)
-			.then((res) => {
-				const uid = res.user.uid;
+		signup(currentUser.uid, email, password)
+			.then((res: UserRecord) => {
+				const uid = res.uid;
 				// generate defaults
 				const userData = {
 					email,
@@ -48,8 +62,6 @@ const RegisterPage = () => {
 				};
 				// add to user table
 				addUser(uid, userData);
-				console.log(uid, userData);
-				router.replace("/");
 			})
 			.catch((err) => {
 				if (err instanceof FirebaseError) {

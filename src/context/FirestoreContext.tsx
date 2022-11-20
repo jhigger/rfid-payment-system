@@ -171,6 +171,7 @@ const FirestoreProvider = ({ children }: { children: JSX.Element | null }) => {
 				default:
 					break;
 			}
+			console.log("User created successfully!");
 		} catch (err) {
 			return console.log("addUser", err);
 		}
