@@ -108,7 +108,8 @@ interface ContextValues {
 		type: TransactionType,
 		amount: number,
 		senderIdNumber: string,
-		receiverIdNumber: string
+		receiverIdNumber: string,
+		message: string | null
 	) => Promise<void>;
 }
 
@@ -187,7 +188,8 @@ const FirestoreProvider = ({ children }: { children: JSX.Element | null }) => {
 		type: TransactionType,
 		amount: number,
 		senderIdNumber: string,
-		receiverIdNumber: string
+		receiverIdNumber: string,
+		message: string | null
 	) => {
 		const timestamps = {
 			createdAt: serverTimestamp(),
@@ -198,8 +200,8 @@ const FirestoreProvider = ({ children }: { children: JSX.Element | null }) => {
 			amount,
 			sender: senderIdNumber,
 			receiver: receiverIdNumber,
-			message: "Cash In",
-			...timestamps,
+			message,
+			createdAt: timestamps.createdAt,
 		};
 		// get UIDs
 		const senderUid = await getUidFromIdNumber(senderIdNumber);
@@ -222,7 +224,10 @@ const FirestoreProvider = ({ children }: { children: JSX.Element | null }) => {
 		const receiverDocRef = doc(db, "users", receiverUid);
 		const receiverColRef = collection(receiverDocRef, "transactions");
 		await addDoc(receiverColRef, transactionReferenceData);
-		await addFunds(receiverUid, { amount, updatedAt: timestamps.updatedAt });
+		await addFunds(receiverUid, {
+			amount,
+			updatedAt: timestamps.updatedAt,
+		});
 	};
 
 	const addFunds = async (

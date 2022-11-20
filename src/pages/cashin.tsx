@@ -35,7 +35,8 @@ const CashInPage = () => {
 			TransactionTypes.CASH_IN,
 			amount,
 			currentUserData.idNumber,
-			receiver
+			receiver,
+			"Cash In"
 		)
 			.then(() => {
 				alert("Funds added successfully!");
