@@ -3,7 +3,8 @@ import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useContext } from "react";
-import { FaSignOutAlt, FaUserCircle } from "react-icons/fa";
+import { FaUserCircle } from "react-icons/fa";
+import LogoutButton from "../components/LogoutButton";
 import { AuthContext } from "../context/AuthContext";
 import type { Role } from "../context/FirestoreContext";
 import { FirestoreContext, Roles } from "../context/FirestoreContext";
@@ -63,25 +64,18 @@ const Home: NextPage = () => {
 				<h2 className="text-5xl font-extrabold leading-normal text-gray-700 md:text-[5rem]">
 					{`Role: ${currentUserData.role}`}
 				</h2>
-				<LogoutButton handleLogout={handleLogout} />
-				{currentUserData.role === Roles.ADMIN && (
-					<CreateAccountButton />
-				)}
+
+				<div className="min-w-xl flex gap-4">
+					<LogoutButton handleLogout={handleLogout} />
+					{authorizedUsers.includes(currentUserData.role) && (
+						<CashInButton />
+					)}
+					{currentUserData.role === Roles.ADMIN && (
+						<CreateAccountButton />
+					)}
+				</div>
 			</main>
 		</>
-	);
-};
-
-const LogoutButton = ({ handleLogout }: { handleLogout: () => void }) => {
-	return (
-		<button
-			type="button"
-			className="flex w-max items-center justify-center rounded-lg  bg-red-600 py-2 px-4 text-center text-base font-semibold text-white shadow-md transition duration-200 ease-in hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2  focus:ring-offset-red-200 "
-			onClick={handleLogout}
-		>
-			<FaSignOutAlt className="mr-2" />
-			Logout
-		</button>
 	);
 };
 
@@ -94,6 +88,20 @@ const CreateAccountButton = () => {
 			>
 				<FaUserCircle className="mr-2" />
 				Create an account
+			</button>
+		</Link>
+	);
+};
+
+const CashInButton = () => {
+	return (
+		<Link href="/cashin">
+			<button
+				type="button"
+				className="flex w-max items-center justify-center rounded-lg  bg-blue-600 py-2 px-4 text-center text-base font-semibold text-white shadow-md transition duration-200 ease-in hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2  focus:ring-offset-blue-200 "
+			>
+				<FaUserCircle className="mr-2" />
+				Cash In
 			</button>
 		</Link>
 	);

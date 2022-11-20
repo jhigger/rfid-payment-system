@@ -22,13 +22,6 @@ export const Roles = {
 } as const;
 export type Role = typeof Roles[keyof typeof Roles];
 export type RoleData = StudentData | FacultyData | CashierData | AdminData;
-export type RegisterDefaults =
-	| "disabled"
-	| "funds"
-	| "pin"
-	| "createdAt"
-	| "updatedAt"
-	| "transactionCount";
 
 export interface UserData {
 	email: string;
@@ -48,10 +41,20 @@ export interface UserData {
 	transactionCount: number;
 }
 
+export type RegisterDefaults =
+	| "disabled"
+	| "funds"
+	| "pin"
+	| "createdAt"
+	| "updatedAt"
+	| "transactionCount";
 export type RegisterData = Omit<
 	UserData & StudentData & FacultyData & CashierData & AdminData,
 	RegisterDefaults
 >;
+
+export type CashInDefaults = "type" | "sender" | "message" | "createdAt";
+export type CashInData = Omit<TransactionData, CashInDefaults>;
 
 interface StudentData {
 	course: string;
@@ -75,7 +78,7 @@ interface AdminData {
 	updatedAt: FieldValue;
 }
 
-const TransactionTypes = {
+export const TransactionTypes = {
 	SEND: "send",
 	RECEIVE: "receive",
 	CASH_IN: "cash in",
@@ -94,22 +97,16 @@ interface TransactionData {
 	receiver: string;
 	message: string | null;
 	createdAt: FieldValue;
-	updatedAt: FieldValue;
-	updatedBy: string | null;
 }
 
 interface ContextValues {
 	currentUserData: UserData;
-	addUser: (
-		uid: string,
-		registerData: RegisterData
-	) => Promise<void> | undefined;
+	addUser: (uid: string, registerData: RegisterData) => Promise<void>;
 	addTransaction: (
 		type: TransactionType,
-		senderData: UserData,
-		receiverData: UserData,
 		amount: number,
-		message: string
+		senderIdNumber: string,
+		receiverIdNumber: string
 	) => Promise<void>;
 }
 
@@ -123,57 +120,52 @@ const FirestoreProvider = ({ children }: { children: JSX.Element | null }) => {
 	const { currentUser } = useContext(AuthContext);
 
 	const addUser = async (uid: string, registerData: RegisterData) => {
-		try {
-			const timestamps = {
-				createdAt: serverTimestamp(),
-				updatedAt: serverTimestamp(),
-			};
-			const userData: UserData = {
-				email: registerData.email,
-				firstName: registerData.firstName,
-				middleName: registerData.middleName,
-				lastName: registerData.lastName,
-				mobileNumber: registerData.mobileNumber,
-				address: registerData.address,
-				idNumber: registerData.idNumber,
-				role: registerData.role,
-				// defaults
-				disabled: false,
-				funds: 0,
-				pin: null,
-				transactionCount: 0,
-				...timestamps,
-			};
-			// add to users table
-			await setDoc(doc(db, "users", uid), userData);
-			// add to respective role table
-			switch (registerData.role) {
-				case Roles.STUDENT:
-					const studentData: StudentData = {
-						course: registerData.course,
-						year: registerData.year,
-						...timestamps,
-					};
-					addToRole(Roles.STUDENT, uid, studentData);
-					break;
-				case Roles.FACULTY:
-					const facultyData: FacultyData = { ...timestamps };
-					addToRole(Roles.FACULTY, uid, facultyData);
-					break;
-				case Roles.CASHIER:
-					const cashierData: CashierData = { ...timestamps };
-					addToRole(Roles.CASHIER, uid, cashierData);
-					break;
-				case Roles.ADMIN:
-					const adminData: AdminData = { ...timestamps };
-					addToRole(Roles.ADMIN, uid, adminData);
-					break;
-				default:
-					break;
-			}
-			console.log("User created successfully!");
-		} catch (err) {
-			return console.log("addUser", err);
+		const timestamps = {
+			createdAt: serverTimestamp(),
+			updatedAt: serverTimestamp(),
+		};
+		const userData: UserData = {
+			email: registerData.email,
+			firstName: registerData.firstName,
+			middleName: registerData.middleName,
+			lastName: registerData.lastName,
+			mobileNumber: registerData.mobileNumber,
+			address: registerData.address,
+			idNumber: registerData.idNumber,
+			role: registerData.role,
+			// defaults
+			disabled: false,
+			funds: 0,
+			pin: null,
+			transactionCount: 0,
+			...timestamps,
+		};
+		// add to users table
+		await setDoc(doc(db, "users", uid), userData);
+		// add to respective role table
+		switch (registerData.role) {
+			case Roles.STUDENT:
+				const studentData: StudentData = {
+					course: registerData.course,
+					year: registerData.year,
+					...timestamps,
+				};
+				addToRole(Roles.STUDENT, uid, studentData);
+				break;
+			case Roles.FACULTY:
+				const facultyData: FacultyData = { ...timestamps };
+				addToRole(Roles.FACULTY, uid, facultyData);
+				break;
+			case Roles.CASHIER:
+				const cashierData: CashierData = { ...timestamps };
+				addToRole(Roles.CASHIER, uid, cashierData);
+				break;
+			case Roles.ADMIN:
+				const adminData: AdminData = { ...timestamps };
+				addToRole(Roles.ADMIN, uid, adminData);
+				break;
+			default:
+				break;
 		}
 	};
 
@@ -191,10 +183,9 @@ const FirestoreProvider = ({ children }: { children: JSX.Element | null }) => {
 
 	const addTransaction = async (
 		type: TransactionType,
-		senderData: UserData,
-		receiverData: UserData,
 		amount: number,
-		message: string
+		senderIdNumber: string,
+		receiverIdNumber: string
 	) => {
 		const timestamps = {
 			createdAt: serverTimestamp(),
@@ -203,36 +194,32 @@ const FirestoreProvider = ({ children }: { children: JSX.Element | null }) => {
 		const transactionData: TransactionData = {
 			type,
 			amount,
-			sender: senderData.idNumber,
-			receiver: receiverData.idNumber,
-			message,
-			updatedBy: null,
+			sender: senderIdNumber,
+			receiver: receiverIdNumber,
+			message: "Cash In",
 			...timestamps,
 		};
-		try {
-			const { id: transactionId } = await addDoc(
-				collection(db, "transactions"),
-				transactionData
-			);
-			const transactionReferenceData: TransactionReference = {
-				type,
-				transaction: transactionId,
-			};
-			// get UIDs
-			const senderUid = await getUidFromIdNumber(senderData.idNumber);
-			const receiverUid = await getUidFromIdNumber(receiverData.idNumber);
-			// save transaction reference for each user sub collection
-			// for sender
-			const senderDocRef = doc(db, "users", senderUid);
-			const senderColRef = collection(senderDocRef, "transactions");
-			addDoc(senderColRef, transactionReferenceData);
-			// for receiver
-			const receiverDocRef = doc(db, "users", receiverUid);
-			const receiverColRef = collection(receiverDocRef, "transactions");
-			addDoc(receiverColRef, transactionReferenceData);
-		} catch (err) {
-			return console.log("addTransaction", err);
-		}
+		// get UIDs
+		const senderUid = await getUidFromIdNumber(senderIdNumber);
+		const receiverUid = await getUidFromIdNumber(receiverIdNumber);
+		// transaction stops if error finding user from id number
+		const { id: transactionId } = await addDoc(
+			collection(db, "transactions"),
+			transactionData
+		);
+		const transactionReferenceData: TransactionReference = {
+			type,
+			transaction: transactionId,
+		};
+		// save transaction reference for each user sub collection
+		// for sender
+		const senderDocRef = doc(db, "users", senderUid);
+		const senderColRef = collection(senderDocRef, "transactions");
+		addDoc(senderColRef, transactionReferenceData);
+		// for receiver
+		const receiverDocRef = doc(db, "users", receiverUid);
+		const receiverColRef = collection(receiverDocRef, "transactions");
+		addDoc(receiverColRef, transactionReferenceData);
 	};
 
 	const getUidFromIdNumber = async (idNumber: string): Promise<string> => {
@@ -245,7 +232,7 @@ const FirestoreProvider = ({ children }: { children: JSX.Element | null }) => {
 			return docSnap.docs[0].id;
 		}
 		// doc.data() will be undefined in this case
-		throw new Error("ID Number does not exist!");
+		return Promise.reject(new Error("ID number does not exist."));
 	};
 
 	useEffect(() => {
