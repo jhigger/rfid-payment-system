@@ -61,7 +61,9 @@ const RegisterPage = () => {
 					...rest,
 				};
 				// add to user table
-				addUser(uid, userData);
+				addUser(uid, userData).then(() =>
+					console.log("User created successfully!")
+				);
 			})
 			.catch((err) => {
 				if (err instanceof FirebaseError) {
