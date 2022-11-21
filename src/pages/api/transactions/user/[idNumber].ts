@@ -19,7 +19,7 @@ const raids = async (req: NextApiRequest, res: NextApiResponse) => {
 					.json({ message: "User data does not exists." });
 			}
 
-			const userId = userDocSnap.docs[0]?.id;
+			const userId = userDocSnap.docs[0].id;
 			const transactionReferences = await admin
 				.firestore()
 				.collection("users")
@@ -28,7 +28,10 @@ const raids = async (req: NextApiRequest, res: NextApiResponse) => {
 				.get()
 				.then((res) => {
 					return res.docs.map((doc) => {
-						return doc.data().transaction;
+						return admin
+							.firestore()
+							.collection("transactions")
+							.doc(doc.data().transaction);
 					});
 				});
 
@@ -38,14 +41,8 @@ const raids = async (req: NextApiRequest, res: NextApiResponse) => {
 
 			const transactions = await admin
 				.firestore()
-				.collection("transactions")
-				.where(
-					admin.firestore.FieldPath.documentId(),
-					"in",
-					transactionReferences
-				)
-				.get()
-				.then((res) => res.docs.map((doc) => doc.data()));
+				.getAll(...transactionReferences)
+				.then((res) => res.map((doc) => doc.data()));
 
 			res.status(200).json(transactions);
 		} else {
