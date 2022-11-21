@@ -12,13 +12,13 @@ const raids = async (req: NextApiRequest, res: NextApiResponse) => {
 				.collection("users")
 				.where("idNumber", "==", idNumber)
 				.get();
-
+			// check if id number exists
 			if (!userDocSnap.docs[0]?.exists) {
 				return res
 					.status(404)
 					.json({ message: "User data does not exists." });
 			}
-
+			// get transactions references of user
 			const userId = userDocSnap.docs[0].id;
 			const transactionReferences = await admin
 				.firestore()
@@ -34,11 +34,11 @@ const raids = async (req: NextApiRequest, res: NextApiResponse) => {
 							.doc(doc.data().transaction);
 					});
 				});
-
+			// check if user has transactions
 			if (transactionReferences.length === 0) {
 				return res.status(200).json([]);
 			}
-
+			// get all transactions based on transaction references of user
 			const transactions = await admin
 				.firestore()
 				.getAll(...transactionReferences)
