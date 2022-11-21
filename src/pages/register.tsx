@@ -29,7 +29,7 @@ const RegisterPage = () => {
 	} = useForm<RegisterInputs>();
 
 	const signup = (userUid: string, email: string, password: string) => {
-		const res = fetch("/api/create/user", {
+		const res = fetch("/api/user/create", {
 			method: "POST",
 			body: JSON.stringify({
 				userUid,
