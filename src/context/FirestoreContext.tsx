@@ -85,14 +85,15 @@ export const TransactionTypes = {
 	RECEIVE: "receive",
 	CASH_IN: "cash in",
 } as const;
-type TransactionType = typeof TransactionTypes[keyof typeof TransactionTypes];
+type TransactionType =
+	typeof TransactionTypes[keyof typeof TransactionTypes];
 
-interface TransactionReference {
+export interface TransactionReference {
 	type: TransactionType;
 	transaction: string;
 }
 
-interface TransactionData {
+export interface TransactionData {
 	type: TransactionType;
 	amount: number;
 	sender: string;

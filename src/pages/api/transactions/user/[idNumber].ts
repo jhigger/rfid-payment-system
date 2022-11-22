@@ -1,8 +1,7 @@
-// import type { DocumentData, DocumentSnapshot } from "firebase/firestore";
 import type { NextApiRequest, NextApiResponse } from "next";
 import admin from "../../../../lib/firebase-admin";
 
-const raids = async (req: NextApiRequest, res: NextApiResponse) => {
+const userTransactions = async (req: NextApiRequest, res: NextApiResponse) => {
 	try {
 		if (req.method === "GET") {
 			// Process a GET request
@@ -55,4 +54,4 @@ const raids = async (req: NextApiRequest, res: NextApiResponse) => {
 	}
 };
 
-export default raids;
+export default userTransactions;

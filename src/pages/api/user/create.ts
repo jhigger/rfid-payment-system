@@ -4,15 +4,15 @@ import type { UserData } from "../../../context/FirestoreContext";
 import { Roles } from "../../../context/FirestoreContext";
 import admin from "../../../lib/firebase-admin";
 
-const raids = async (req: NextApiRequest, res: NextApiResponse) => {
+const create = async (req: NextApiRequest, res: NextApiResponse) => {
 	try {
 		if (req.method === "POST") {
 			// Process a POST request
-			const { userUid, email, password } = req.body;
+			const { authorizedUid, email, password } = req.body;
 			const docSnap = await admin
 				.firestore()
 				.collection("users")
-				.doc(userUid)
+				.doc(authorizedUid)
 				.get();
 
 			if (!docSnap.exists) {
@@ -41,4 +41,4 @@ const raids = async (req: NextApiRequest, res: NextApiResponse) => {
 	}
 };
 
-export default raids;
+export default create;
