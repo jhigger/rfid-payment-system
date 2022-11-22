@@ -84,9 +84,9 @@ export const TransactionTypes = {
 	SEND: "send",
 	RECEIVE: "receive",
 	CASH_IN: "cash in",
+	PAYMENT: "payment",
 } as const;
-type TransactionType =
-	typeof TransactionTypes[keyof typeof TransactionTypes];
+type TransactionType = typeof TransactionTypes[keyof typeof TransactionTypes];
 
 export interface TransactionReference {
 	type: TransactionType;
