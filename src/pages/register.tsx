@@ -7,6 +7,7 @@ import { FaSpinner } from "react-icons/fa";
 import { AuthContext } from "../context/AuthContext";
 import type { RegisterData, Role } from "../context/FirestoreContext";
 import { FirestoreContext, Roles } from "../context/FirestoreContext";
+import axios from 'axios'
 
 interface RegisterInputs extends RegisterData {
 	password: string;
@@ -29,14 +30,10 @@ const RegisterPage = () => {
 	} = useForm<RegisterInputs>();
 
 	const signup = (userUid: string, email: string, password: string) => {
-		const res = fetch("/api/user/create", {
-			method: "POST",
-			body: JSON.stringify({
-				userUid,
-				email,
-				password,
-			}),
-			headers: { "Content-type": "application/json; charset=UTF-8" },
+		const res = axios.post("/api/user/create", {
+			userUid,
+			email,
+			password,
 		});
 		return res;
 	};
@@ -54,8 +51,8 @@ const RegisterPage = () => {
 		setFormError("");
 		signup(currentUser.uid, email, password)
 			.then(async (res) => {
-				const json = (await res.json()) as UserRecord;
-				const uid = json.uid;
+				const user = res.data as UserRecord;
+				const uid = user.uid;
 				// generate defaults
 				const userData = {
 					email,
