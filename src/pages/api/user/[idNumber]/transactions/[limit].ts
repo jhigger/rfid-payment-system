@@ -5,7 +5,7 @@ const userTransactionsLimit = async (
 	req: NextApiRequest,
 	res: NextApiResponse
 ) => {
-	userTransactions(req, res);
+	await userTransactions(req, res);
 };
 
 export default userTransactionsLimit;
