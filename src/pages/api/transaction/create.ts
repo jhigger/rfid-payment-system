@@ -1,12 +1,15 @@
-// import type { DocumentData, DocumentSnapshot } from "firebase/firestore";
 import type { NextApiRequest, NextApiResponse } from "next";
 import type {
 	TransactionData,
 	TransactionReference,
-	UserData,
 } from "../../../context/FirestoreContext";
-import { Roles } from "../../../context/FirestoreContext";
 import admin from "../../../lib/firebase-admin";
+import {
+	addFunds,
+	addUserTransactionReference,
+	getUidFromIdNumber,
+	isAuthorizedUser,
+} from "../../../utils/helperFunctions";
 
 const create = async (req: NextApiRequest, res: NextApiResponse) => {
 	try {
@@ -20,22 +23,7 @@ const create = async (req: NextApiRequest, res: NextApiResponse) => {
 				transactionData: Omit<TransactionData, "createdAt">;
 			} = req.body;
 
-			const docSnap = await admin
-				.firestore()
-				.collection("users")
-				.doc(authorizedUid)
-				.get();
-
-			if (!docSnap.exists) {
-				return res
-					.status(404)
-					.json({ message: "User data does not exists." });
-			}
-
-			const data = docSnap.data() as UserData;
-			if (data.role !== Roles.ADMIN) {
-				res.status(401).json({ message: "Unauthorized user." });
-			}
+			await isAuthorizedUser(authorizedUid, res);
 
 			const senderUid = await getUidFromIdNumber(sender);
 			const receiverUid = await getUidFromIdNumber(receiver);
@@ -55,19 +43,15 @@ const create = async (req: NextApiRequest, res: NextApiResponse) => {
 				transaction: transactionId,
 			};
 
-			await admin
-				.firestore()
-				.collection("users")
-				.doc(senderUid)
-				.collection("transactions")
-				.add(transactionReferenceData);
+			await addUserTransactionReference(
+				senderUid,
+				transactionReferenceData
+			);
 
-			await admin
-				.firestore()
-				.collection("users")
-				.doc(receiverUid)
-				.collection("transactions")
-				.add(transactionReferenceData);
+			await addUserTransactionReference(
+				receiverUid,
+				transactionReferenceData
+			);
 
 			await addFunds(receiverUid, {
 				amount,
@@ -86,36 +70,6 @@ const create = async (req: NextApiRequest, res: NextApiResponse) => {
 		console.log(error);
 		res.status(500).json(error);
 	}
-};
-
-const getUidFromIdNumber = async (idNumber: string): Promise<string> => {
-	const docSnap = await admin
-		.firestore()
-		.collection("users")
-		.where("idNumber", "==", idNumber)
-		.get();
-	if (docSnap.docs[0]?.exists) {
-		return docSnap.docs[0].id;
-	}
-	return Promise.reject(new Error("ID number does not exist."));
-};
-
-const addFunds = async (
-	uid: string,
-	{
-		amount,
-		updatedAt,
-	}: { amount: number; updatedAt: admin.firestore.FieldValue }
-) => {
-	await admin
-		.firestore()
-		.collection("users")
-		.doc(uid)
-		.update({
-			funds: admin.firestore.FieldValue.increment(amount),
-			transactionCount: admin.firestore.FieldValue.increment(1),
-			updatedAt,
-		});
 };
 
 export default create;

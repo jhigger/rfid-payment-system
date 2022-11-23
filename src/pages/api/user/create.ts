@@ -1,30 +1,15 @@
 // import type { DocumentData, DocumentSnapshot } from "firebase/firestore";
 import type { NextApiRequest, NextApiResponse } from "next";
-import type { UserData } from "../../../context/FirestoreContext";
-import { Roles } from "../../../context/FirestoreContext";
 import admin from "../../../lib/firebase-admin";
+import { isAuthorizedUser } from "../../../utils/helperFunctions";
 
 const create = async (req: NextApiRequest, res: NextApiResponse) => {
 	try {
 		if (req.method === "POST") {
 			// Process a POST request
 			const { authorizedUid, email, password } = req.body;
-			const docSnap = await admin
-				.firestore()
-				.collection("users")
-				.doc(authorizedUid)
-				.get();
 
-			if (!docSnap.exists) {
-				return res
-					.status(404)
-					.json({ message: "User data does not exists." });
-			}
-
-			const data = docSnap.data() as UserData;
-			if (data.role !== Roles.ADMIN) {
-				res.status(401).json({ message: "Unauthorized user." });
-			}
+			await isAuthorizedUser(authorizedUid, res);
 
 			const user = await admin.auth().createUser({
 				email,

@@ -1,16 +1,12 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import admin from "../../../lib/firebase-admin";
+import { getUser } from "../../../utils/helperFunctions";
 
 const user = async (req: NextApiRequest, res: NextApiResponse) => {
 	try {
 		if (req.method === "GET") {
 			// Process a GET request
 			const { idNumber } = req.query;
-			const userDocSnap = await admin
-				.firestore()
-				.collection("users")
-				.where("idNumber", "==", idNumber)
-				.get();
+			const userDocSnap = await getUser(idNumber);
 			// check if id number exists
 			if (!userDocSnap.docs[0]?.exists) {
 				return res
