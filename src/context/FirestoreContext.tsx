@@ -238,6 +238,7 @@ const FirestoreProvider = ({ children }: { children: JSX.Element | null }) => {
 		const docRef = doc(db, "users", uid);
 		await updateDoc(docRef, {
 			funds: increment(amount),
+			transactionCount: increment(1),
 			updatedAt,
 		});
 	};

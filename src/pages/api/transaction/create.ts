@@ -113,6 +113,7 @@ const addFunds = async (
 		.doc(uid)
 		.update({
 			funds: admin.firestore.FieldValue.increment(amount),
+			transactionCount: admin.firestore.FieldValue.increment(1),
 			updatedAt,
 		});
 };
