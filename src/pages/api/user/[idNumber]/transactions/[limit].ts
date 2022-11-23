@@ -1,11 +1,11 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import admin from "../../../../lib/firebase-admin";
+import admin from "../../../../../lib/firebase-admin";
 
 const userTransactions = async (req: NextApiRequest, res: NextApiResponse) => {
 	try {
 		if (req.method === "GET") {
 			// Process a GET request
-			const { idNumber } = req.query;
+			const { idNumber, limit } = req.query;
 			const userDocSnap = await admin
 				.firestore()
 				.collection("users")
@@ -24,6 +24,7 @@ const userTransactions = async (req: NextApiRequest, res: NextApiResponse) => {
 				.collection("users")
 				.doc(userId as string)
 				.collection("transactions")
+				.limit(Number(limit) || 0)
 				.get()
 				.then((res) => {
 					return res.docs.map((doc) => {
