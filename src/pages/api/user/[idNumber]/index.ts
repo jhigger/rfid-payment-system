@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { getUser } from "../../../utils/helperFunctions";
+import { getUser } from "../../../../utils/helperFunctions";
 
 const user = async (req: NextApiRequest, res: NextApiResponse) => {
 	try {
