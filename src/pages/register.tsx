@@ -7,7 +7,7 @@ import { FaSpinner } from "react-icons/fa";
 import { AuthContext } from "../context/AuthContext";
 import type { RegisterData, Role } from "../context/FirestoreContext";
 import { FirestoreContext, Roles } from "../context/FirestoreContext";
-import axios from 'axios'
+import axios from "axios";
 
 interface RegisterInputs extends RegisterData {
 	password: string;
@@ -19,7 +19,8 @@ const RegisterPage = () => {
 	const [formError, setFormError] = useState("");
 	const [role, setRole] = useState<Role>("student");
 	const { currentUser } = useContext(AuthContext);
-	const { currentUserData, addUser } = useContext(FirestoreContext);
+	const { currentUserData, addUser, getUidFromIdNumber } =
+		useContext(FirestoreContext);
 
 	const {
 		register,
@@ -29,9 +30,9 @@ const RegisterPage = () => {
 		reset,
 	} = useForm<RegisterInputs>();
 
-	const signup = (userUid: string, email: string, password: string) => {
+	const signup = (authorizedUid: string, email: string, password: string) => {
 		const res = axios.post("/api/user/create", {
-			userUid,
+			authorizedUid,
 			email,
 			password,
 		});
@@ -49,27 +50,32 @@ const RegisterPage = () => {
 
 		setIsLoading(true);
 		setFormError("");
-		signup(currentUser.uid, email, password)
-			.then(async (res) => {
-				const user = res.data as UserRecord;
-				const uid = user.uid;
-				// generate defaults
-				const userData = {
-					email,
-					...rest,
-				};
-				// add to user table
-				addUser(uid, userData)
-					.then(() => {
-						alert("User created successfully!");
-						reset();
-					})
-					.catch(() => {
-						setFormError("ID Number already exists.");
-					});
+
+		const userData = {
+			email,
+			...rest,
+		};
+
+		getUidFromIdNumber(userData.idNumber)
+			.then(() => {
+				return setFormError("ID number already exist.");
 			})
-			.catch((err) => {
-				setFormError(err.message);
+			.catch(() => {
+				signup(currentUser.uid, email, password)
+					.then(async (res) => {
+						const user = res.data as UserRecord;
+						const uid = user.uid;
+
+						// add to user table
+						addUser(uid, userData).then(() => {
+							alert("User created successfully!");
+							reset();
+						});
+					})
+					.catch((err) => {
+						console.log(err);
+						setFormError(err.response.data.message);
+					});
 			})
 			.finally(() => setIsLoading(false));
 	};

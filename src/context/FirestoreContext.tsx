@@ -112,6 +112,7 @@ interface ContextValues {
 		receiverIdNumber: string,
 		message: string | null
 	) => Promise<void>;
+	getUidFromIdNumber: (idNumber: string) => Promise<string>;
 }
 
 const FirestoreContext = createContext<ContextValues>({} as ContextValues);
@@ -154,21 +155,22 @@ const FirestoreProvider = ({ children }: { children: JSX.Element | null }) => {
 					year: registerData.year,
 					...timestamps,
 				};
-				addToRole(Roles.STUDENT, uid, studentData);
+				await addToRole(Roles.STUDENT, uid, studentData);
 				break;
 			case Roles.FACULTY:
 				const facultyData: FacultyData = { ...timestamps };
-				addToRole(Roles.FACULTY, uid, facultyData);
+				await addToRole(Roles.FACULTY, uid, facultyData);
 				break;
 			case Roles.CASHIER:
 				const cashierData: CashierData = { ...timestamps };
-				addToRole(Roles.CASHIER, uid, cashierData);
+				await (Roles.CASHIER, uid, cashierData);
 				break;
 			case Roles.ADMIN:
 				const adminData: AdminData = { ...timestamps };
-				addToRole(Roles.ADMIN, uid, adminData);
+				await addToRole(Roles.ADMIN, uid, adminData);
 				break;
 			default:
+				console.log("Invalid User Role");
 				break;
 		}
 	};
@@ -178,6 +180,7 @@ const FirestoreProvider = ({ children }: { children: JSX.Element | null }) => {
 		uid: string,
 		roleData: RoleData
 	) => {
+		console.log(roleData);
 		try {
 			await setDoc(doc(db, collection, uid), { ...roleData });
 		} catch (err) {
@@ -279,6 +282,7 @@ const FirestoreProvider = ({ children }: { children: JSX.Element | null }) => {
 		currentUserData,
 		addUser,
 		addTransaction,
+		getUidFromIdNumber,
 	};
 
 	return (
