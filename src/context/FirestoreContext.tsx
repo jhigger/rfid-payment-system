@@ -163,7 +163,7 @@ const FirestoreProvider = ({ children }: { children: JSX.Element | null }) => {
 				break;
 			case Roles.CASHIER:
 				const cashierData: CashierData = { ...timestamps };
-				await (Roles.CASHIER, uid, cashierData);
+				await addToRole(Roles.CASHIER, uid, cashierData);
 				break;
 			case Roles.ADMIN:
 				const adminData: AdminData = { ...timestamps };

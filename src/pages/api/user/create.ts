@@ -20,8 +20,9 @@ const create = async (req: NextApiRequest, res: NextApiResponse) => {
 			// Handle any other HTTP method
 			res.status(200).json({ name: "Hello, world!" });
 		}
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	} catch (error: any) {
-		console.log({ message: error.errorInfo.message });
+		console.log(error);
 		res.status(500).json({ message: error.errorInfo.message });
 	}
 };
