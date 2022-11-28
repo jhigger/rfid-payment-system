@@ -180,7 +180,6 @@ const FirestoreProvider = ({ children }: { children: JSX.Element | null }) => {
 		uid: string,
 		roleData: RoleData
 	) => {
-		console.log(roleData);
 		try {
 			await setDoc(doc(db, collection, uid), { ...roleData });
 		} catch (err) {
