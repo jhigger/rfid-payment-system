@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import type { UserData } from "../../../../context/FirestoreContext";
-import admin from "../../../../lib/firebase-admin";
-import { getUser, isAuthorizedUser } from "../../../../utils/helperFunctions";
+import type { UserData } from "../../../context/FirestoreContext";
+import admin from "../../../lib/firebase-admin";
+import { getUser, isAuthorizedUser } from "../../../utils/helperFunctions";
 
 const update = async (req: NextApiRequest, res: NextApiResponse) => {
 	try {
