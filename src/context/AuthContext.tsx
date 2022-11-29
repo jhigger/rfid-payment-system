@@ -1,6 +1,8 @@
 import {
 	createUserWithEmailAndPassword,
+	inMemoryPersistence,
 	onAuthStateChanged,
+	setPersistence,
 	signInWithEmailAndPassword,
 	signOut,
 	type User,
@@ -12,7 +14,7 @@ import { auth } from "../lib/firebase";
 interface ContextValues {
 	currentUser: User | null;
 	signup: (email: string, password: string) => Promise<UserCredential>;
-	login: (email: string, password: string) => Promise<UserCredential>;
+	login: (email: string, password: string) => Promise<void | UserCredential>;
 	logout: () => Promise<void>;
 }
 
@@ -26,8 +28,24 @@ const AuthProvider = ({ children }: { children: JSX.Element | null }) => {
 		return createUserWithEmailAndPassword(auth, email, password);
 	};
 
-	const login = (email: string, password: string) => {
-		return signInWithEmailAndPassword(auth, email, password);
+	const login = async (email: string, password: string) => {
+		return (
+			setPersistence(auth, inMemoryPersistence)
+				.then(() => {
+					// Existing and future Auth states are now persisted in the current
+					// session only. Closing the window would clear any existing state even
+					// if a user forgets to sign out.
+					// ...
+					// New sign-in will be persisted with session persistence.
+					return signInWithEmailAndPassword(auth, email, password);
+				})
+				// eslint-disable-next-line @typescript-eslint/no-explicit-any
+				.catch((error: any) => {
+					// Handle Errors here.
+					const errorMessage = error.message;
+					console.log(errorMessage);
+				})
+		);
 	};
 
 	const logout = () => {
