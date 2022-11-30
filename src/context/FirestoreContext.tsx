@@ -58,24 +58,24 @@ export type RegisterData = Omit<
 export type CashInDefaults = "type" | "sender" | "message" | "createdAt";
 export type CashInData = Omit<TransactionData, CashInDefaults>;
 
-interface StudentData {
+export interface StudentData {
 	course: string;
 	year: string;
 	createdAt: FieldValue;
 	updatedAt: FieldValue;
 }
 
-interface FacultyData {
+export interface FacultyData {
 	createdAt: FieldValue;
 	updatedAt: FieldValue;
 }
 
-interface CashierData {
+export interface CashierData {
 	createdAt: FieldValue;
 	updatedAt: FieldValue;
 }
 
-interface AdminData {
+export interface AdminData {
 	createdAt: FieldValue;
 	updatedAt: FieldValue;
 }

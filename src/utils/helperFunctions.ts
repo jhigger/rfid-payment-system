@@ -1,5 +1,6 @@
 import type { NextApiResponse } from "next";
 import type {
+	Role,
 	TransactionReference,
 	UserData,
 } from "../context/FirestoreContext";
@@ -56,12 +57,16 @@ export const addFunds = async (
 		});
 };
 
-export const getUser = async (idNumber: string | string[] | undefined) => {
+export const getUser = async (idNumber: string) => {
 	return await admin
 		.firestore()
 		.collection("users")
 		.where("idNumber", "==", idNumber)
 		.get();
+};
+
+export const getFromRole = async (uid: string, role: Role) => {
+	return await admin.firestore().collection(role).doc(uid).get();
 };
 
 export const addUserTransactionReference = async (

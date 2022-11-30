@@ -2,13 +2,12 @@ import axios from "axios";
 import type { FieldValue } from "firebase/firestore";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import type { UserData } from "../../context/FirestoreContext";
 
 const UserDataPage = () => {
 	const router = useRouter();
 	const { idNumber } = router.query;
 
-	const [userData, setUserData] = useState<UserData | null>(null);
+	const [userData, setUserData] = useState(null);
 	const [error, setError] = useState(false);
 
 	const timestampToLocaleString = (timestamp: FieldValue) => {
@@ -26,7 +25,8 @@ const UserDataPage = () => {
 		axios
 			.get(`/api/user/${idNumber}`)
 			.then((res) => {
-				const data = res.data as UserData;
+				// eslint-disable-next-line @typescript-eslint/no-explicit-any
+				const data: any = res.data;
 				setUserData(data);
 			})
 			.catch((err) => {
@@ -35,30 +35,41 @@ const UserDataPage = () => {
 			});
 	}, [idNumber]);
 
-	if (!userData) {
-		return <>Loading...</>;
-	}
-
 	if (error) {
 		return <>User Not Found</>;
 	}
 
-	return (
-		<>
-			{Object.keys(userData).map((key, idx) => {
-				let value = userData[key as keyof typeof userData];
+	if (!userData) {
+		return <>Loading...</>;
+	}
 
-				if (key === "createdAt" || key === "updatedAt") {
+	return (
+		<div className="container mx-auto my-[15vh] flex w-full max-w-max flex-col gap-2">
+			{Object.keys(userData).map((key, idx) => {
+				// eslint-disable-next-line @typescript-eslint/no-explicit-any
+				let value: any = userData[key];
+
+				if (
+					key === "createdAt" ||
+					key === "updatedAt" ||
+					key === "roleDataCreatedAt" ||
+					key === "roleDataUpdatedAt"
+				) {
 					value = timestampToLocaleString(userData[key]);
 				}
 
 				return (
-					<div key={idx}>
-						{key}: {value ? value.toString() : "None"}
+					<div key={idx} className="flex gap-4">
+						<span className="font-bold">{key}:</span>
+						<span className="">
+							{value !== null && value !== undefined
+								? value.toString()
+								: "None"}
+						</span>
 					</div>
 				);
 			})}
-		</>
+		</div>
 	);
 };
 
