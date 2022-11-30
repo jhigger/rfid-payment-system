@@ -1,4 +1,3 @@
-import { FirebaseError } from "firebase/app";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import { useContext, useEffect, useState } from "react";
@@ -28,11 +27,7 @@ const LoginPage = () => {
 		setFormError("");
 		login(email, password)
 			.catch((err) => {
-				if (err instanceof FirebaseError) {
-					setFormError(err.message);
-				} else {
-					console.log(err);
-				}
+				setFormError(err.message);
 			})
 			.finally(() => setIsLoading(false));
 	};

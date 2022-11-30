@@ -43,7 +43,7 @@ const AuthProvider = ({ children }: { children: JSX.Element | null }) => {
 				.catch((error: any) => {
 					// Handle Errors here.
 					const errorMessage = error.message;
-					console.log(errorMessage);
+					return Promise.reject(new Error(errorMessage));
 				})
 		);
 	};
