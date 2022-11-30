@@ -1,10 +1,12 @@
 import axios from "axios";
 import type { FieldValue } from "firebase/firestore";
 import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
+import { AuthContext } from "../../context/AuthContext";
 
 const UserDataPage = () => {
 	const router = useRouter();
+	const { currentUser } = useContext(AuthContext);
 	const { idNumber } = router.query;
 
 	const [userData, setUserData] = useState(null);
@@ -34,6 +36,16 @@ const UserDataPage = () => {
 				setError(true);
 			});
 	}, [idNumber]);
+
+	useEffect(() => {
+		if (!currentUser) {
+			router.push("/login");
+		}
+	}, [currentUser, router]);
+
+	if (!currentUser) {
+		return null;
+	}
 
 	if (error) {
 		return <>User Not Found</>;
