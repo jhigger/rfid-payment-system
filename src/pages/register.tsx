@@ -1,6 +1,6 @@
 import type { UserRecord } from "firebase-admin/lib/auth/user-record";
 import Head from "next/head";
-import { useContext, useState } from "react";
+import { useContext, useState, useEffect } from "react";
 import type { FieldErrorsImpl, UseFormRegister } from "react-hook-form";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import { FaSpinner } from "react-icons/fa";
@@ -8,6 +8,7 @@ import { AuthContext } from "../context/AuthContext";
 import type { RegisterData, Role } from "../context/FirestoreContext";
 import { FirestoreContext, Roles } from "../context/FirestoreContext";
 import axios from "axios";
+import { useRouter } from "next/router";
 
 interface RegisterInputs extends RegisterData {
 	password: string;
@@ -15,6 +16,7 @@ interface RegisterInputs extends RegisterData {
 }
 
 const RegisterPage = () => {
+	const router = useRouter();
 	const [isLoading, setIsLoading] = useState(false);
 	const [formError, setFormError] = useState("");
 	const [role, setRole] = useState<Role>("student");
@@ -79,6 +81,16 @@ const RegisterPage = () => {
 			})
 			.finally(() => setIsLoading(false));
 	};
+
+	useEffect(() => {
+		if (!currentUser) {
+			router.push("/login");
+		}
+	}, [currentUser, router]);
+
+	if (!currentUser) {
+		return null;
+	}
 
 	if (!currentUserData) {
 		return (
