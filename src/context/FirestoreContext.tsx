@@ -58,6 +58,16 @@ export type RegisterData = Omit<
 export type CashInDefaults = "type" | "sender" | "message" | "createdAt";
 export type CashInData = Omit<TransactionData, CashInDefaults>;
 
+export type UpdateDefaults =
+	| "funds"
+	| "createdAt"
+	| "updatedAt"
+	| "transactionCount";
+export type UpdateData = Omit<
+	UserData & StudentData & FacultyData & CashierData & AdminData,
+	UpdateDefaults
+>;
+
 export interface StudentData {
 	course: string;
 	year: string;
@@ -113,6 +123,13 @@ interface ContextValues {
 		message: string | null
 	) => Promise<void>;
 	getUidFromIdNumber: (idNumber: string) => Promise<string>;
+	getUser: (idNumber: string) => Promise<UserData | undefined>;
+	getRole: (
+		role: string,
+		idNumber: string
+	) => Promise<
+		(StudentData & FacultyData & CashierData & AdminData) | undefined
+	>;
 }
 
 const FirestoreContext = createContext<ContextValues>({} as ContextValues);
@@ -258,8 +275,39 @@ const FirestoreProvider = ({ children }: { children: JSX.Element | null }) => {
 		return Promise.reject(new Error("ID number does not exist."));
 	};
 
+	const getUser = async (idNumber: string) => {
+		const uid = await getUidFromIdNumber(idNumber);
+		const docRef = doc(db, "users", uid);
+		const docSnap = await getDoc(docRef);
+
+		if (docSnap.exists()) {
+			const data = docSnap.data();
+			return { ...data } as UserData;
+		} else {
+			// doc.data() will be undefined in this case
+			console.log("No such document!");
+		}
+	};
+
+	const getRole = async (role: string, idNumber: string) => {
+		const uid = await getUidFromIdNumber(idNumber);
+		const docRef = doc(db, role, uid);
+		const docSnap = await getDoc(docRef);
+
+		if (docSnap.exists()) {
+			const data = docSnap.data();
+			return { ...data } as StudentData &
+				FacultyData &
+				CashierData &
+				AdminData;
+		} else {
+			// doc.data() will be undefined in this case
+			console.log("No such document!");
+		}
+	};
+
 	useEffect(() => {
-		const getUser = async () => {
+		const getCurrentUser = async () => {
 			if (!currentUser) return setCurrentUserData(null);
 
 			const docRef = doc(db, "users", currentUser.uid);
@@ -274,7 +322,7 @@ const FirestoreProvider = ({ children }: { children: JSX.Element | null }) => {
 			}
 		};
 
-		getUser().finally(() => setLoading(false));
+		getCurrentUser().finally(() => setLoading(false));
 	}, [currentUser]);
 
 	const value: ContextValues = {
@@ -282,6 +330,8 @@ const FirestoreProvider = ({ children }: { children: JSX.Element | null }) => {
 		addUser,
 		addTransaction,
 		getUidFromIdNumber,
+		getUser,
+		getRole,
 	};
 
 	return (

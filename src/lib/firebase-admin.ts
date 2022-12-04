@@ -6,6 +6,7 @@ try {
 	admin.initializeApp({
 		credential: admin.credential.cert(serviceAccount as ServiceAccount),
 	});
+	admin.firestore().settings({ ignoreUndefinedProperties: true });
 	console.log("Admin Initialized.");
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 } catch (error: any) {
