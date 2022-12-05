@@ -9,7 +9,7 @@ import type { CashInData, Role } from "../context/FirestoreContext";
 import {
 	FirestoreContext,
 	Roles,
-	TransactionTypes
+	TransactionTypes,
 } from "../context/FirestoreContext";
 
 type CashInInputs = CashInData;
@@ -71,7 +71,7 @@ const CashInPage = () => {
 		);
 	}
 
-	const authorizedUsers: Role[] = [Roles.ADMIN, Roles.CASHIER];
+	const authorizedUsers: Role[] = [Roles.CASHIER];
 	if (!authorizedUsers.includes(currentUserData.role)) {
 		return (
 			<main className="container mx-auto flex min-h-screen flex-col items-center justify-center p-4">
