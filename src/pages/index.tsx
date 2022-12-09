@@ -91,7 +91,6 @@ const Home: NextPage = () => {
 					)}
 					{currentUserData.role === Roles.ADMIN && (
 						<>
-							<CashInButton />
 							<CreateAccountButton />
 							<SearchUser />
 						</>
