@@ -32,7 +32,7 @@ const Home: NextPage = () => {
 	if (!currentUserData) {
 		return (
 			<main className="container mx-auto flex min-h-screen flex-col items-center justify-center p-4">
-				<h1 className="text-5xl font-extrabold leading-normal text-[#006400] md:text-[5rem]">
+				<h1 className="text-5xl font-extrabold leading-normal text-[#0D2A21] md:text-[5rem]">
 					Loading...
 				</h1>
 			</main>
@@ -42,7 +42,7 @@ const Home: NextPage = () => {
 	if (currentUserData.disabled) {
 		return (
 			<main className="container mx-auto flex min-h-screen flex-col items-center justify-center p-4">
-				<h1 className="text-5xl font-extrabold leading-normal text-[#006400] md:text-[5rem]">
+				<h1 className="text-5xl font-extrabold leading-normal text-[#0D2A21] md:text-[5rem]">
 					Account Disabled
 				</h1>
 				<LogoutButton handleLogout={handleLogout} />
@@ -58,7 +58,7 @@ const Home: NextPage = () => {
 	if (!authorizedUsers.includes(currentUserData.role)) {
 		return (
 			<main className="container mx-auto flex min-h-screen flex-col items-center justify-center p-4">
-				<h1 className="text-5xl font-extrabold leading-normal text-[#006400] md:text-[5rem]">
+				<h1 className="text-5xl font-extrabold leading-normal text-[#0D2A21] md:text-[5rem]">
 					Authorized Users Only
 				</h1>
 				<LogoutButton handleLogout={handleLogout} />
@@ -78,10 +78,10 @@ const Home: NextPage = () => {
 			</Head>
 
 			<main className="container mx-auto flex min-h-screen flex-col flex-wrap items-center justify-center p-4">
-				<h1 className="text-5xl font-extrabold leading-normal text-[#006400]">
+				<h1 className="text-5xl font-extrabold leading-normal text-[#0D2A21]">
 					{`Hello, ${currentUser.email}!`}
 				</h1>
-				<h2 className="text-5xl font-extrabold leading-normal text-[#006400]">
+				<h2 className="text-5xl font-extrabold leading-normal text-[#0D2A21]">
 					{`Role: ${currentUserData.role}`}
 				</h2>
 				<div className="flex max-w-xl flex-wrap gap-4">
@@ -109,7 +109,7 @@ const CreateAccountButton = () => {
 		<Link href="/register">
 			<button
 				type="button"
-				className="flex w-max items-center justify-center rounded-lg  bg-[#02A66D] py-2 px-4 text-center text-base font-semibold text-white shadow-md transition duration-200 ease-in hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2  focus:ring-offset-blue-200 "
+				className="flex w-max items-center justify-center rounded-lg  bg-[#02A66D] py-2 px-4 text-center text-base font-semibold text-white shadow-md transition duration-200 ease-in hover:bg-[#006400] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2  focus:ring-offset-blue-200 "
 			>
 				<FaUserCircle className="mr-2" />
 				Create an account
@@ -123,7 +123,7 @@ const CashInButton = () => {
 		<Link href="/cashin">
 			<button
 				type="button"
-				className="flex w-max items-center justify-center rounded-lg  bg-[#02A66D] py-2 px-4 text-center text-base font-semibold text-white shadow-md transition duration-200 ease-in hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2  focus:ring-offset-blue-200 "
+				className="flex w-max items-center justify-center rounded-lg  bg-[#02A66D] py-2 px-4 text-center text-base font-semibold text-white shadow-md transition duration-200 ease-in hover:bg-[#006400] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2  focus:ring-offset-blue-200 "
 			>
 				<FaUserCircle className="mr-2" />
 				Cash In
@@ -137,7 +137,7 @@ const SearchUser = () => {
 		<Link href="/user">
 			<button
 				type="button"
-				className="flex w-max items-center justify-center rounded-lg  bg-[#02A66D] py-2 px-4 text-center text-base font-semibold text-white shadow-md transition duration-200 ease-in hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2  focus:ring-offset-blue-200 "
+				className="flex w-max items-center justify-center rounded-lg  bg-[#02A66D] py-2 px-4 text-center text-base font-semibold text-white shadow-md transition duration-200 ease-in hover:bg-[#006400] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2  focus:ring-offset-blue-200 "
 			>
 				<FaSearch className="mr-2" />
 				Search User
@@ -151,7 +151,7 @@ const PaymentButton = () => {
 		<Link href="/pay">
 			<button
 				type="button"
-				className="flex w-max items-center justify-center rounded-lg  bg-[#02A66D] py-2 px-4 text-center text-base font-semibold text-white shadow-md transition duration-200 ease-in hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2  focus:ring-offset-blue-200 "
+				className="flex w-max items-center justify-center rounded-lg  bg-[#02A66D] py-2 px-4 text-center text-base font-semibold text-white shadow-md transition duration-200 ease-in hover:bg-[#006400] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2  focus:ring-offset-blue-200 "
 			>
 				<MdPayments className="mr-2" />
 				Pay

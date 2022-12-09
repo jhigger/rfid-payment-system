@@ -84,7 +84,7 @@ const PaymentPage = () => {
 	if (!currentUserData) {
 		return (
 			<main className="container mx-auto flex min-h-screen flex-col items-center justify-center p-4">
-				<h1 className="text-5xl font-extrabold leading-normal text-[#006400] md:text-[5rem]">
+				<h1 className="text-5xl font-extrabold leading-normal text-[#0D2A21] md:text-[5rem]">
 					Loading...
 				</h1>
 			</main>
@@ -95,7 +95,7 @@ const PaymentPage = () => {
 	if (!authorizedUsers.includes(currentUserData.role)) {
 		return (
 			<main className="container mx-auto flex min-h-screen flex-col items-center justify-center p-4">
-				<h1 className="text-5xl font-extrabold leading-normal text-[#006400] md:text-[5rem]">
+				<h1 className="text-5xl font-extrabold leading-normal text-[#0D2A21] md:text-[5rem]">
 					Authorized Users Only
 				</h1>
 				<LogoutButton handleLogout={handleLogout} />
