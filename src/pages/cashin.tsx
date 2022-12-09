@@ -71,7 +71,7 @@ const CashInPage = () => {
 		);
 	}
 
-	const authorizedUsers: Role[] = [Roles.CASHIER];
+	const authorizedUsers: Role[] = [Roles.ACCOUNTANT, Roles.ADMIN];
 	if (!authorizedUsers.includes(currentUserData.role)) {
 		return (
 			<main className="container mx-auto flex min-h-screen flex-col items-center justify-center p-4">

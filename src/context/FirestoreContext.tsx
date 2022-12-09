@@ -21,9 +21,15 @@ export const Roles = {
 	FACULTY: "faculty",
 	CASHIER: "cashier",
 	ADMIN: "admin",
+	ACCOUNTANT: "accountant",
 } as const;
 export type Role = typeof Roles[keyof typeof Roles];
-export type RoleData = StudentData | FacultyData | CashierData | AdminData;
+export type RoleData =
+	| StudentData
+	| FacultyData
+	| CashierData
+	| AdminData
+	| AccountantData;
 
 export interface UserData {
 	email: string;
@@ -51,7 +57,12 @@ export type RegisterDefaults =
 	| "updatedAt"
 	| "transactionCount";
 export type RegisterData = Omit<
-	UserData & StudentData & FacultyData & CashierData & AdminData,
+	UserData &
+		StudentData &
+		FacultyData &
+		CashierData &
+		AdminData &
+		AccountantData,
 	RegisterDefaults
 >;
 
@@ -64,7 +75,12 @@ export type UpdateDefaults =
 	| "updatedAt"
 	| "transactionCount";
 export type UpdateData = Omit<
-	UserData & StudentData & FacultyData & CashierData & AdminData,
+	UserData &
+		StudentData &
+		FacultyData &
+		CashierData &
+		AdminData &
+		AccountantData,
 	UpdateDefaults
 >;
 
@@ -86,6 +102,11 @@ export interface CashierData {
 }
 
 export interface AdminData {
+	createdAt: FieldValue;
+	updatedAt: FieldValue;
+}
+
+export interface AccountantData {
 	createdAt: FieldValue;
 	updatedAt: FieldValue;
 }

@@ -49,7 +49,11 @@ const Home: NextPage = () => {
 		);
 	}
 
-	const authorizedUsers: Role[] = [Roles.CASHIER];
+	const authorizedUsers: Role[] = [
+		Roles.CASHIER,
+		Roles.ADMIN,
+		Roles.ACCOUNTANT,
+	];
 	if (!authorizedUsers.includes(currentUserData.role)) {
 		return (
 			<main className="container mx-auto flex min-h-screen flex-col items-center justify-center p-4">
@@ -81,11 +85,13 @@ const Home: NextPage = () => {
 				</h2>
 				<div className="flex max-w-xl flex-wrap gap-4">
 					<LogoutButton handleLogout={handleLogout} />
-					{authorizedUsers.includes(currentUserData.role) && (
+					{currentUserData.role === Roles.CASHIER && <>todo</>}
+					{currentUserData.role === Roles.ACCOUNTANT && (
 						<CashInButton />
 					)}
 					{currentUserData.role === Roles.ADMIN && (
 						<>
+							<CashInButton />
 							<CreateAccountButton />
 							<SearchUser />
 						</>
