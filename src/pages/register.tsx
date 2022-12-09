@@ -176,6 +176,23 @@ const RegisterPage = () => {
 									<input
 										type="text"
 										className=" w-full flex-1 appearance-none rounded-lg border border-transparent border-gray-300 bg-white py-2 px-4 text-base text-gray-700 placeholder-gray-400 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-600"
+										placeholder="RFID Card Number"
+										{...register("cardNumber", {
+											required: "Field is required",
+											max: 10,
+										})}
+									/>
+									<span className="flex-items-center justify-center text-center text-sm text-red-500 dark:text-red-400">
+										{errors.idNumber &&
+											errors.idNumber.message}
+									</span>
+								</div>
+							</div>
+							<div className="mb-2 flex flex-col">
+								<div className=" relative ">
+									<input
+										type="text"
+										className=" w-full flex-1 appearance-none rounded-lg border border-transparent border-gray-300 bg-white py-2 px-4 text-base text-gray-700 placeholder-gray-400 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-600"
 										placeholder="First Name"
 										{...register("firstName", {
 											required: "Field is required",

@@ -40,7 +40,7 @@ const UserDataPage = () => {
 				})
 				.then((res) => {
 					alert(res.data.message);
-					router.replace("/user");
+					router.back();
 				})
 				.catch((err) => console.log(err));
 		}

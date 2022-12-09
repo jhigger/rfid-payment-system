@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { useContext, useEffect } from "react";
 import { FaSearch, FaUserCircle } from "react-icons/fa";
+import { MdPayments } from "react-icons/md";
 import LogoutButton from "../components/LogoutButton";
 import { AuthContext } from "../context/AuthContext";
 import type { Role } from "../context/FirestoreContext";
@@ -85,7 +86,9 @@ const Home: NextPage = () => {
 				</h2>
 				<div className="flex max-w-xl flex-wrap gap-4">
 					<LogoutButton handleLogout={handleLogout} />
-					{currentUserData.role === Roles.CASHIER && <>todo</>}
+					{currentUserData.role === Roles.CASHIER && (
+						<PaymentButton />
+					)}
 					{currentUserData.role === Roles.ACCOUNTANT && (
 						<CashInButton />
 					)}
@@ -143,4 +146,17 @@ const SearchUser = () => {
 	);
 };
 
+const PaymentButton = () => {
+	return (
+		<Link href="/pay">
+			<button
+				type="button"
+				className="flex w-max items-center justify-center rounded-lg  bg-blue-600 py-2 px-4 text-center text-base font-semibold text-white shadow-md transition duration-200 ease-in hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2  focus:ring-offset-blue-200 "
+			>
+				<MdPayments className="mr-2" />
+				Pay
+			</button>
+		</Link>
+	);
+};
 export default Home;

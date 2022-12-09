@@ -40,6 +40,7 @@ export interface UserData {
 	address: string;
 	idNumber: string;
 	role: Role;
+	cardNumber: string;
 	// defaults
 	disabled: boolean;
 	funds: number;
@@ -68,6 +69,9 @@ export type RegisterData = Omit<
 
 export type CashInDefaults = "type" | "sender" | "message" | "createdAt";
 export type CashInData = Omit<TransactionData, CashInDefaults>;
+
+export type PaymentDefaults = "type" | "receiver" | "message" | "createdAt";
+export type PaymentData = Omit<TransactionData, PaymentDefaults>;
 
 export type UpdateDefaults =
 	| "funds"
@@ -141,16 +145,18 @@ interface ContextValues {
 		amount: number,
 		senderIdNumber: string,
 		receiverIdNumber: string,
-		message: string | null
+		message: string | null,
+		rfid?: boolean
 	) => Promise<void>;
 	getUidFromIdNumber: (idNumber: string) => Promise<string>;
 	getUser: (idNumber: string) => Promise<UserData | undefined>;
-	getRole: (
+	getRoleData: (
 		role: string,
 		idNumber: string
 	) => Promise<
 		(StudentData & FacultyData & CashierData & AdminData) | undefined
 	>;
+	getPin: (cardNumber: string) => Promise<string | null | undefined>;
 }
 
 const FirestoreContext = createContext<ContextValues>({} as ContextValues);
@@ -176,6 +182,7 @@ const FirestoreProvider = ({ children }: { children: JSX.Element | null }) => {
 			address: registerData.address,
 			idNumber: registerData.idNumber,
 			role: registerData.role,
+			cardNumber: registerData.cardNumber,
 			// defaults
 			disabled: false,
 			funds: 0,
@@ -230,8 +237,24 @@ const FirestoreProvider = ({ children }: { children: JSX.Element | null }) => {
 		amount: number,
 		senderIdNumber: string,
 		receiverIdNumber: string,
-		message: string | null
+		message: string | null,
+		rfid?: boolean
 	) => {
+		// get UIDs
+		const senderUid = rfid
+			? await getUidFromRFIDCardNumber(senderIdNumber)
+			: await getUidFromIdNumber(senderIdNumber);
+		const receiverUid = await getUidFromIdNumber(receiverIdNumber);
+
+		// if()
+
+		if (type === TransactionTypes.PAYMENT) {
+			const funds = await getFunds(senderUid);
+			if (funds < amount) {
+				return Promise.reject(new Error("Insufficient funds."));
+			}
+		}
+
 		const timestamps = {
 			createdAt: serverTimestamp(),
 			updatedAt: serverTimestamp(),
@@ -244,9 +267,6 @@ const FirestoreProvider = ({ children }: { children: JSX.Element | null }) => {
 			message,
 			createdAt: timestamps.createdAt,
 		};
-		// get UIDs
-		const senderUid = await getUidFromIdNumber(senderIdNumber);
-		const receiverUid = await getUidFromIdNumber(receiverIdNumber);
 		// transaction stops if error finding user from id number
 		const { id: transactionId } = await addDoc(
 			collection(db, "transactions"),
@@ -261,17 +281,21 @@ const FirestoreProvider = ({ children }: { children: JSX.Element | null }) => {
 		const senderDocRef = doc(db, "users", senderUid);
 		const senderColRef = collection(senderDocRef, "transactions");
 		await addDoc(senderColRef, transactionReferenceData);
+		await updateFunds(senderUid, {
+			amount: -amount,
+			updatedAt: timestamps.updatedAt,
+		});
 		// for receiver
 		const receiverDocRef = doc(db, "users", receiverUid);
 		const receiverColRef = collection(receiverDocRef, "transactions");
 		await addDoc(receiverColRef, transactionReferenceData);
-		await addFunds(receiverUid, {
+		await updateFunds(receiverUid, {
 			amount,
 			updatedAt: timestamps.updatedAt,
 		});
 	};
 
-	const addFunds = async (
+	const updateFunds = async (
 		uid: string,
 		{ amount, updatedAt }: { amount: number; updatedAt: FieldValue }
 	) => {
@@ -281,6 +305,19 @@ const FirestoreProvider = ({ children }: { children: JSX.Element | null }) => {
 			transactionCount: increment(1),
 			updatedAt,
 		});
+	};
+
+	const getFunds = async (uid: string) => {
+		const docRef = doc(db, "users", uid);
+		const docSnap = await getDoc(docRef);
+
+		if (docSnap.exists()) {
+			const data = docSnap.data() as UserData;
+			return data.funds;
+		} else {
+			// doc.data() will be undefined in this case
+			return 0;
+		}
 	};
 
 	const getUidFromIdNumber = async (idNumber: string): Promise<string> => {
@@ -294,6 +331,21 @@ const FirestoreProvider = ({ children }: { children: JSX.Element | null }) => {
 		}
 		// doc.data() will be undefined in this case
 		return Promise.reject(new Error("ID number does not exist."));
+	};
+
+	const getUidFromRFIDCardNumber = async (
+		cardNumber: string
+	): Promise<string> => {
+		const q = query(
+			collection(db, "users"),
+			where("cardNumber", "==", cardNumber)
+		);
+		const docSnap = await getDocs(q);
+		if (docSnap.docs[0]?.exists()) {
+			return docSnap.docs[0].id;
+		}
+		// doc.data() will be undefined in this case
+		return Promise.reject(new Error("RFID card number does not exist."));
 	};
 
 	const getUser = async (idNumber: string) => {
@@ -310,7 +362,21 @@ const FirestoreProvider = ({ children }: { children: JSX.Element | null }) => {
 		}
 	};
 
-	const getRole = async (role: string, idNumber: string) => {
+	const getPin = async (cardNumber: string) => {
+		const uid = await getUidFromRFIDCardNumber(cardNumber);
+		const docRef = doc(db, "users", uid);
+		const docSnap = await getDoc(docRef);
+
+		if (docSnap.exists()) {
+			const data = docSnap.data() as UserData;
+			return data.pin;
+		} else {
+			// doc.data() will be undefined in this case
+			console.log("No such document!");
+		}
+	};
+
+	const getRoleData = async (role: string, idNumber: string) => {
 		const uid = await getUidFromIdNumber(idNumber);
 		const docRef = doc(db, role, uid);
 		const docSnap = await getDoc(docRef);
@@ -352,7 +418,8 @@ const FirestoreProvider = ({ children }: { children: JSX.Element | null }) => {
 		addTransaction,
 		getUidFromIdNumber,
 		getUser,
-		getRole,
+		getRoleData,
+		getPin,
 	};
 
 	return (
