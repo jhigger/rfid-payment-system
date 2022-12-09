@@ -22,7 +22,7 @@ const UpdateUserPage = () => {
 	const [formError, setFormError] = useState("");
 	const [role, setRole] = useState<Role>("student");
 	const { currentUser } = useContext(AuthContext);
-	const { currentUserData, getUidFromIdNumber, getUser, getRole } =
+	const { currentUserData, getUidFromIdNumber, getUser, getRoleData } =
 		useContext(FirestoreContext);
 
 	const {
@@ -49,7 +49,7 @@ const UpdateUserPage = () => {
 				setValue("email", user.email);
 				setValue("disabled", user.disabled);
 				setValue("pin", user.pin);
-				getRole(user.role, user.idNumber).then((role) => {
+				getRoleData(user.role, user.idNumber).then((role) => {
 					if (!role) return;
 
 					setValue("course", role.course);
@@ -57,7 +57,7 @@ const UpdateUserPage = () => {
 				});
 			})
 			.catch((err) => console.log(err));
-	}, [idNumber, getUser, getRole, setValue]);
+	}, [idNumber, getUser, getRoleData, setValue]);
 
 	const updateUserData = (
 		authorizedUid: string,
