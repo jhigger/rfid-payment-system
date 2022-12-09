@@ -143,27 +143,6 @@ const PaymentPage = () => {
 											required: "Field is required",
 											max: 10,
 										})}
-										onKeyDown={(e) => {
-											if (e.key === "Enter") {
-												e.target.dispatchEvent(
-													new KeyboardEvent(
-														"keydown",
-														{
-															key: "Tab",
-															keyCode: 9,
-															which: 9,
-															code: "Tab",
-															location: 0,
-															altKey: false,
-															ctrlKey: false,
-															metaKey: false,
-															shiftKey: false,
-															repeat: false,
-														}
-													)
-												);
-											}
-										}}
 									/>
 									<span className="flex-items-center justify-center text-center text-sm text-red-500 dark:text-red-400">
 										{errors.sender && errors.sender.message}
@@ -186,7 +165,7 @@ const PaymentPage = () => {
 							<div className="my-4 flex w-full">
 								<button
 									type="submit"
-									className="w-full rounded-lg  bg-purple-600 py-2 px-4 text-center text-base font-semibold text-white shadow-md transition duration-200 ease-in hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2  focus:ring-offset-purple-200 "
+									className="w-full rounded-lg bg-[#02A66D] py-2 px-4 text-center text-base font-semibold text-white shadow-md transition duration-200 ease-in hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2  focus:ring-offset-purple-200 "
 									disabled={isLoading}
 								>
 									{isLoading ? (
