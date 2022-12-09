@@ -49,7 +49,7 @@ const SearchUserPage = () => {
 	if (!currentUserData) {
 		return (
 			<main className="container mx-auto flex min-h-screen flex-col items-center justify-center p-4">
-				<h1 className="text-5xl font-extrabold leading-normal text-gray-700 md:text-[5rem]">
+				<h1 className="text-5xl font-extrabold leading-normal text-[#006400] md:text-[5rem]">
 					Loading...
 				</h1>
 			</main>
@@ -60,7 +60,7 @@ const SearchUserPage = () => {
 	if (!authorizedUsers.includes(currentUserData.role)) {
 		return (
 			<main className="container mx-auto flex min-h-screen flex-col items-center justify-center p-4">
-				<h1 className="text-5xl font-extrabold leading-normal text-gray-700 md:text-[5rem]">
+				<h1 className="text-5xl font-extrabold leading-normal text-[#006400] md:text-[5rem]">
 					Authorized Users Only
 				</h1>
 				<LogoutButton handleLogout={handleLogout} />
@@ -85,7 +85,7 @@ const SearchUserPage = () => {
 								<div className=" relative ">
 									<input
 										type="text"
-										className=" w-full flex-1 appearance-none rounded-lg border border-transparent border-gray-300 bg-white py-2 px-4 text-base text-gray-700 placeholder-gray-400 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-600"
+										className=" w-full flex-1 appearance-none rounded-lg border border-transparent border-gray-300 bg-white py-2 px-4 text-base text-[#006400] placeholder-gray-400 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-600"
 										placeholder="User ID Number"
 										{...register("idNumber", {
 											required: "Field is required",

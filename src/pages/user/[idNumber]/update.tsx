@@ -115,7 +115,7 @@ const UpdateUserPage = () => {
 	if (!currentUserData) {
 		return (
 			<main className="container mx-auto flex min-h-screen flex-col items-center justify-center p-4">
-				<h1 className="text-5xl font-extrabold leading-normal text-gray-700 md:text-[5rem]">
+				<h1 className="text-5xl font-extrabold leading-normal text-[#006400] md:text-[5rem]">
 					Loading...
 				</h1>
 			</main>
@@ -125,7 +125,7 @@ const UpdateUserPage = () => {
 	if (currentUserData.role !== Roles.ADMIN) {
 		return (
 			<main className="container mx-auto flex min-h-screen flex-col items-center justify-center p-4">
-				<h1 className="text-5xl font-extrabold leading-normal text-gray-700 md:text-[5rem]">
+				<h1 className="text-5xl font-extrabold leading-normal text-[#006400] md:text-[5rem]">
 					Admin Only
 				</h1>
 			</main>
@@ -147,7 +147,7 @@ const UpdateUserPage = () => {
 							<div className="mb-2 flex flex-col">
 								<div className=" relative ">
 									<select
-										className="focus:ring-primary-500 focus:border-primary-500 block w-52 rounded-md border border-gray-300 bg-white py-2 px-3 text-gray-700 shadow-sm focus:outline-none"
+										className="focus:ring-primary-500 focus:border-primary-500 block w-52 rounded-md border border-gray-300 bg-white py-2 px-3 text-[#006400] shadow-sm focus:outline-none"
 										{...register("role", {
 											onChange: (e) => {
 												setRole(e.target.value);
@@ -177,7 +177,7 @@ const UpdateUserPage = () => {
 								<div className=" relative ">
 									<input
 										type="text"
-										className=" w-full flex-1 appearance-none rounded-lg border border-transparent border-gray-300 bg-white py-2 px-4 text-base text-gray-700 placeholder-gray-400 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-600"
+										className=" w-full flex-1 appearance-none rounded-lg border border-transparent border-gray-300 bg-white py-2 px-4 text-base text-[#006400] placeholder-gray-400 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-600"
 										placeholder="ID Number"
 										{...register("idNumber", {
 											required: "Field is required",
@@ -194,7 +194,7 @@ const UpdateUserPage = () => {
 								<div className=" relative ">
 									<input
 										type="text"
-										className=" w-full flex-1 appearance-none rounded-lg border border-transparent border-gray-300 bg-white py-2 px-4 text-base text-gray-700 placeholder-gray-400 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-600"
+										className=" w-full flex-1 appearance-none rounded-lg border border-transparent border-gray-300 bg-white py-2 px-4 text-base text-[#006400] placeholder-gray-400 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-600"
 										placeholder="First Name"
 										{...register("firstName", {
 											required: "Field is required",
@@ -210,7 +210,7 @@ const UpdateUserPage = () => {
 								<div className=" relative ">
 									<input
 										type="text"
-										className=" w-full flex-1 appearance-none rounded-lg border border-transparent border-gray-300 bg-white py-2 px-4 text-base text-gray-700 placeholder-gray-400 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-600"
+										className=" w-full flex-1 appearance-none rounded-lg border border-transparent border-gray-300 bg-white py-2 px-4 text-base text-[#006400] placeholder-gray-400 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-600"
 										placeholder="Middle Name"
 										{...register("middleName", {
 											required: "Field is required",
@@ -226,7 +226,7 @@ const UpdateUserPage = () => {
 								<div className=" relative ">
 									<input
 										type="text"
-										className=" w-full flex-1 appearance-none rounded-lg border border-transparent border-gray-300 bg-white py-2 px-4 text-base text-gray-700 placeholder-gray-400 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-600"
+										className=" w-full flex-1 appearance-none rounded-lg border border-transparent border-gray-300 bg-white py-2 px-4 text-base text-[#006400] placeholder-gray-400 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-600"
 										placeholder="Last Name"
 										{...register("lastName", {
 											required: "Field is required",
@@ -242,7 +242,7 @@ const UpdateUserPage = () => {
 								<div className=" relative ">
 									<input
 										type="text"
-										className=" w-full flex-1 appearance-none rounded-lg border border-transparent border-gray-300 bg-white py-2 px-4 text-base text-gray-700 placeholder-gray-400 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-600"
+										className=" w-full flex-1 appearance-none rounded-lg border border-transparent border-gray-300 bg-white py-2 px-4 text-base text-[#006400] placeholder-gray-400 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-600"
 										placeholder="Mobile (09876543210)"
 										{...register("mobileNumber", {
 											required: "Field is required",
@@ -259,7 +259,7 @@ const UpdateUserPage = () => {
 								<div className=" relative ">
 									<input
 										type="text"
-										className=" w-full flex-1 appearance-none rounded-lg border border-transparent border-gray-300 bg-white py-2 px-4 text-base text-gray-700 placeholder-gray-400 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-600"
+										className=" w-full flex-1 appearance-none rounded-lg border border-transparent border-gray-300 bg-white py-2 px-4 text-base text-[#006400] placeholder-gray-400 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-600"
 										placeholder="Home Address"
 										{...register("address", {
 											required: "Field is required",
@@ -275,7 +275,7 @@ const UpdateUserPage = () => {
 								<div className=" relative ">
 									<input
 										type="email"
-										className=" w-full flex-1 appearance-none rounded-lg border border-transparent border-gray-300 bg-white py-2 px-4 text-base text-gray-700 placeholder-gray-400 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-600"
+										className=" w-full flex-1 appearance-none rounded-lg border border-transparent border-gray-300 bg-white py-2 px-4 text-base text-[#006400] placeholder-gray-400 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-600"
 										placeholder="Email"
 										{...register("email", {
 											required: "Field is required",
@@ -293,7 +293,7 @@ const UpdateUserPage = () => {
 									</span>
 									<input
 										type={"checkbox"}
-										// className=" w-full flex-1 appearance-none rounded-lg border border-transparent border-gray-300 bg-white py-2 px-4 text-base text-gray-700 placeholder-gray-400 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-600"
+										// className=" w-full flex-1 appearance-none rounded-lg border border-transparent border-gray-300 bg-white py-2 px-4 text-base text-[#006400] placeholder-gray-400 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-600"
 										placeholder="Disabled"
 										{...register("disabled")}
 									/>
@@ -307,7 +307,7 @@ const UpdateUserPage = () => {
 								<div className=" relative ">
 									<input
 										type="text"
-										className=" w-full flex-1 appearance-none rounded-lg border border-transparent border-gray-300 bg-white py-2 px-4 text-base text-gray-700 placeholder-gray-400 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-600"
+										className=" w-full flex-1 appearance-none rounded-lg border border-transparent border-gray-300 bg-white py-2 px-4 text-base text-[#006400] placeholder-gray-400 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-600"
 										placeholder="Pin (optional)"
 										{...register("pin")}
 									/>
@@ -358,7 +358,7 @@ const RoleDataInputs = ({ role, register, errors }: RoleDataProps) => {
 					<div className=" relative ">
 						<input
 							type="text"
-							className=" w-full flex-1 appearance-none rounded-lg border border-transparent border-gray-300 bg-white py-2 px-4 text-base text-gray-700 placeholder-gray-400 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-600"
+							className=" w-full flex-1 appearance-none rounded-lg border border-transparent border-gray-300 bg-white py-2 px-4 text-base text-[#006400] placeholder-gray-400 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-600"
 							placeholder="Course"
 							{...register("course", {
 								required: "Field is required",
@@ -373,7 +373,7 @@ const RoleDataInputs = ({ role, register, errors }: RoleDataProps) => {
 					<div className=" relative ">
 						<input
 							type="text"
-							className=" w-full flex-1 appearance-none rounded-lg border border-transparent border-gray-300 bg-white py-2 px-4 text-base text-gray-700 placeholder-gray-400 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-600"
+							className=" w-full flex-1 appearance-none rounded-lg border border-transparent border-gray-300 bg-white py-2 px-4 text-base text-[#006400] placeholder-gray-400 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-600"
 							placeholder="Year"
 							{...register("year", {
 								required: "Field is required",

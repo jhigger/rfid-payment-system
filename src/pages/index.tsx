@@ -32,7 +32,7 @@ const Home: NextPage = () => {
 	if (!currentUserData) {
 		return (
 			<main className="container mx-auto flex min-h-screen flex-col items-center justify-center p-4">
-				<h1 className="text-5xl font-extrabold leading-normal text-gray-700 md:text-[5rem]">
+				<h1 className="text-5xl font-extrabold leading-normal text-[#006400] md:text-[5rem]">
 					Loading...
 				</h1>
 			</main>
@@ -42,7 +42,7 @@ const Home: NextPage = () => {
 	if (currentUserData.disabled) {
 		return (
 			<main className="container mx-auto flex min-h-screen flex-col items-center justify-center p-4">
-				<h1 className="text-5xl font-extrabold leading-normal text-gray-700 md:text-[5rem]">
+				<h1 className="text-5xl font-extrabold leading-normal text-[#006400] md:text-[5rem]">
 					Account Disabled
 				</h1>
 				<LogoutButton handleLogout={handleLogout} />
@@ -58,7 +58,7 @@ const Home: NextPage = () => {
 	if (!authorizedUsers.includes(currentUserData.role)) {
 		return (
 			<main className="container mx-auto flex min-h-screen flex-col items-center justify-center p-4">
-				<h1 className="text-5xl font-extrabold leading-normal text-gray-700 md:text-[5rem]">
+				<h1 className="text-5xl font-extrabold leading-normal text-[#006400] md:text-[5rem]">
 					Authorized Users Only
 				</h1>
 				<LogoutButton handleLogout={handleLogout} />
@@ -78,10 +78,10 @@ const Home: NextPage = () => {
 			</Head>
 
 			<main className="container mx-auto flex min-h-screen flex-col flex-wrap items-center justify-center p-4">
-				<h1 className="text-5xl font-extrabold leading-normal text-gray-700">
+				<h1 className="text-5xl font-extrabold leading-normal text-[#006400]">
 					{`Hello, ${currentUser.email}!`}
 				</h1>
-				<h2 className="text-5xl font-extrabold leading-normal text-gray-700">
+				<h2 className="text-5xl font-extrabold leading-normal text-[#006400]">
 					{`Role: ${currentUserData.role}`}
 				</h2>
 				<div className="flex max-w-xl flex-wrap gap-4">
