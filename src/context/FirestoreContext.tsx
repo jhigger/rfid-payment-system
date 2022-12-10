@@ -246,8 +246,6 @@ const FirestoreProvider = ({ children }: { children: JSX.Element | null }) => {
 			: await getUidFromIdNumber(senderIdNumber);
 		const receiverUid = await getUidFromIdNumber(receiverIdNumber);
 
-		// if()
-
 		if (type === TransactionTypes.PAYMENT) {
 			const funds = await getFunds(senderUid);
 			if (funds < amount) {
@@ -281,7 +279,7 @@ const FirestoreProvider = ({ children }: { children: JSX.Element | null }) => {
 		const senderDocRef = doc(db, "users", senderUid);
 		const senderColRef = collection(senderDocRef, "transactions");
 		await addDoc(senderColRef, transactionReferenceData);
-		if (rfid) {
+		if (type === TransactionTypes.PAYMENT) {
 			await updateFunds(senderUid, {
 				amount: -amount,
 				updatedAt: timestamps.updatedAt,
