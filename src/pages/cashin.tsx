@@ -59,16 +59,22 @@ const CashInPage = () => {
 	};
 
 	useEffect(() => {
-		setFormError("");
+		if (receiverIdNumber === "") {
+			setReceiverData(null);
+			setFormError("");
+			return;
+		}
 		axios
 			.get(`/api/user/${receiverIdNumber}`)
 			.then((res) => {
 				// eslint-disable-next-line @typescript-eslint/no-explicit-any
 				const data: any = res.data;
 				setReceiverData(data);
+				setFormError("");
 			})
 			.catch((err) => {
 				console.log(err);
+				setReceiverData(null);
 				setFormError("Receiver not found.");
 			});
 	}, [receiverIdNumber]);
