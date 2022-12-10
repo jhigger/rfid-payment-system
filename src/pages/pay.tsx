@@ -139,9 +139,10 @@ const PaymentPage = () => {
 										type="password"
 										className=" w-full flex-1 appearance-none rounded-lg border border-transparent border-gray-300 bg-white py-2 px-4 text-base text-[#006400] placeholder-gray-400 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-600"
 										placeholder="Payer RFID Card Number"
+										maxLength={10}
 										{...register("sender", {
 											required: "Field is required",
-											max: 10,
+											maxLength: 10,
 										})}
 									/>
 									<span className="flex-items-center justify-center text-center text-sm text-red-500 dark:text-red-400">
