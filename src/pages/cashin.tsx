@@ -1,3 +1,4 @@
+import axios from "axios";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import { useContext, useEffect, useState } from "react";
@@ -5,7 +6,7 @@ import { useForm, type SubmitHandler } from "react-hook-form";
 import { FaSpinner } from "react-icons/fa";
 import LogoutButton from "../components/LogoutButton";
 import { AuthContext } from "../context/AuthContext";
-import type { CashInData, Role } from "../context/FirestoreContext";
+import type { CashInData, Role, UserData } from "../context/FirestoreContext";
 import {
 	FirestoreContext,
 	Roles,
@@ -19,6 +20,8 @@ const CashInPage = () => {
 
 	const [isLoading, setIsLoading] = useState(false);
 	const [formError, setFormError] = useState("");
+	const [receiverData, setReceiverData] = useState<UserData | null>(null);
+	const [receiverIdNumber, setReceiverIdNumber] = useState("");
 	const { currentUser, logout } = useContext(AuthContext);
 	const { currentUserData, addTransaction } = useContext(FirestoreContext);
 
@@ -54,6 +57,21 @@ const CashInPage = () => {
 	const handleLogout = () => {
 		logout().catch((err) => console.log(err.message));
 	};
+
+	useEffect(() => {
+		setFormError("");
+		axios
+			.get(`/api/user/${receiverIdNumber}`)
+			.then((res) => {
+				// eslint-disable-next-line @typescript-eslint/no-explicit-any
+				const data: any = res.data;
+				setReceiverData(data);
+			})
+			.catch((err) => {
+				console.log(err);
+				setFormError("Receiver not found.");
+			});
+	}, [receiverIdNumber]);
 
 	useEffect(() => {
 		if (!currentUser) {
@@ -105,10 +123,27 @@ const CashInPage = () => {
 										{...register("receiver", {
 											required: "Field is required",
 										})}
+										onChange={(e) =>
+											setReceiverIdNumber(e.target.value)
+										}
 									/>
 									<span className="flex-items-center justify-center text-center text-sm text-red-500 dark:text-red-400">
 										{errors.receiver &&
 											errors.receiver.message}
+									</span>
+									<span className="flex-items-center justify-center text-center text-sm text-green-500 dark:text-green-400">
+										{receiverData &&
+											`${
+												receiverData.firstName[0]
+											}${"*".repeat(
+												receiverData.firstName.length -
+													2
+											)}${
+												receiverData.firstName[
+													receiverData.firstName
+														.length - 1
+												]
+											} ${receiverData.lastName[0]}.`}
 									</span>
 								</div>
 							</div>
