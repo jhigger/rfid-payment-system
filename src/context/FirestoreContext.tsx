@@ -281,10 +281,12 @@ const FirestoreProvider = ({ children }: { children: JSX.Element | null }) => {
 		const senderDocRef = doc(db, "users", senderUid);
 		const senderColRef = collection(senderDocRef, "transactions");
 		await addDoc(senderColRef, transactionReferenceData);
-		await updateFunds(senderUid, {
-			amount: -amount,
-			updatedAt: timestamps.updatedAt,
-		});
+		if (rfid) {
+			await updateFunds(senderUid, {
+				amount: -amount,
+				updatedAt: timestamps.updatedAt,
+			});
+		}
 		// for receiver
 		const receiverDocRef = doc(db, "users", receiverUid);
 		const receiverColRef = collection(receiverDocRef, "transactions");
