@@ -177,6 +177,7 @@ const RegisterPage = () => {
 										type="text"
 										className=" w-full flex-1 appearance-none rounded-lg border border-transparent border-gray-300 bg-white py-2 px-4 text-base text-[#006400] placeholder-gray-400 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-600"
 										placeholder="RFID Card Number"
+										maxLength={10}
 										{...register("cardNumber", {
 											required: "Field is required",
 											max: 10,
