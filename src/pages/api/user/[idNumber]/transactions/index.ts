@@ -10,7 +10,7 @@ const userTransactions = async (req: NextApiRequest, res: NextApiResponse) => {
 		if (req.method === "GET") {
 			// Process a GET request
 			const { idNumber, limit } = req.query;
-			const userDocSnap = await getUser(idNumber);
+			const userDocSnap = await getUser(idNumber as string);
 			// check if id number exists
 			if (!userDocSnap.docs[0]?.exists) {
 				return res

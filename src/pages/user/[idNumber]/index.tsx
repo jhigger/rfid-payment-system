@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { useEffect, useState, useContext } from "react";
 import { FaEdit, FaTrash } from "react-icons/fa";
+import { GrTransaction } from "react-icons/gr";
 import { AuthContext } from "../../../context/AuthContext";
 
 const UserDataPage = () => {
@@ -105,8 +106,9 @@ const UserDataPage = () => {
 				})}
 			</ul>
 			<div className="flex w-full max-w-xl gap-4">
-				<EditButton idNumber={idNumber as string} />
 				<DeleteButton handleDeleteUser={handleDeleteUser} />
+				<EditButton idNumber={idNumber as string} />
+				<TransactionsButton idNumber={idNumber as string} />
 			</div>
 		</div>
 	);
@@ -126,6 +128,19 @@ const EditButton = ({ idNumber }: { idNumber: string }) => {
 	);
 };
 
+const TransactionsButton = ({ idNumber }: { idNumber: string }) => {
+	return (
+		<Link href={`/user/${idNumber}/transactions`}>
+			<button
+				type="button"
+				className="flex w-max items-center justify-center rounded-lg  bg-[#02A66D] py-2 px-4 text-center text-base font-semibold text-white shadow-md transition duration-200 ease-in hover:bg-[#006400] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2  focus:ring-offset-blue-200 "
+			>
+				<GrTransaction className="mr-2 invert" />
+				Transactions
+			</button>
+		</Link>
+	);
+};
 const DeleteButton = ({
 	handleDeleteUser,
 }: {
