@@ -214,6 +214,10 @@ const FirestoreProvider = ({ children }: { children: JSX.Element | null }) => {
 				const adminData: AdminData = { ...timestamps };
 				await addToRole(Roles.ADMIN, uid, adminData);
 				break;
+			case Roles.ACCOUNTANT:
+				const accountantData: AccountantData = { ...timestamps };
+				await addToRole(Roles.ACCOUNTANT, uid, accountantData);
+				break;
 			default:
 				console.log("Invalid User Role");
 				break;
