@@ -155,7 +155,9 @@ const PaymentPage = () => {
 										type="password"
 										className=" w-full flex-1 appearance-none rounded-lg border border-transparent border-gray-300 bg-white py-2 px-4 text-base text-[#006400] placeholder-gray-400 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-600"
 										placeholder="Pin (optional)"
-										{...register("pin")}
+										{...register("pin", {
+											required: "Field is required",
+										})}
 									/>
 									<span className="flex-items-center justify-center text-center text-sm text-red-500 dark:text-red-400">
 										{errors.pin && errors.pin.message}
