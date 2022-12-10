@@ -180,7 +180,7 @@ const RegisterPage = () => {
 										maxLength={10}
 										{...register("cardNumber", {
 											required: "Field is required",
-											max: 10,
+											maxLength: 10,
 										})}
 									/>
 									<span className="flex-items-center justify-center text-center text-sm text-red-500 dark:text-red-400">
