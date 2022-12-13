@@ -269,15 +269,15 @@ const FirestoreProvider = ({ children }: { children: JSX.Element | null }) => {
 			collection(db, "transactions"),
 			transactionData
 		);
-		const transactionReferenceData: TransactionReference = {
-			type,
-			transaction: transactionId,
-		};
+
 		// save transaction reference for each user sub collection
 		// for sender
 		const senderDocRef = doc(db, "users", senderUid);
 		const senderColRef = collection(senderDocRef, "transactions");
-		await addDoc(senderColRef, transactionReferenceData);
+		await addDoc(senderColRef, {
+			type: TransactionTypes.SEND,
+			transaction: transactionId,
+		});
 		if (type === TransactionTypes.PAYMENT) {
 			await updateFunds(senderUid, {
 				amount: -amount,
@@ -287,7 +287,10 @@ const FirestoreProvider = ({ children }: { children: JSX.Element | null }) => {
 		// for receiver
 		const receiverDocRef = doc(db, "users", receiverUid);
 		const receiverColRef = collection(receiverDocRef, "transactions");
-		await addDoc(receiverColRef, transactionReferenceData);
+		await addDoc(receiverColRef, {
+			type: TransactionTypes.RECEIVE,
+			transaction: transactionId,
+		});
 		await updateFunds(receiverUid, {
 			amount,
 			updatedAt: timestamps.updatedAt,
