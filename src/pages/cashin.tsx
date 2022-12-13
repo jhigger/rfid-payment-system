@@ -46,6 +46,7 @@ const CashInPage = () => {
 		)
 			.then(() => {
 				alert("Funds added successfully!");
+				setReceiverData(null);
 				reset();
 			})
 			.catch((err) => {
