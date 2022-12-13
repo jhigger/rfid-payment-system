@@ -111,12 +111,6 @@ const TransactionsPage = () => {
 										{transaction.type}
 									</td>
 									<td className="dark:border-dark-5 border-b-2 p-4">
-										{transaction.sender}
-									</td>
-									<td className="dark:border-dark-5 border-b-2 p-4">
-										{transaction.receiver}
-									</td>
-									<td className="dark:border-dark-5 border-b-2 p-4">
 										{transaction.sender === idNumber
 											? "- "
 											: "+ "}
