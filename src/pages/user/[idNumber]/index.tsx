@@ -72,11 +72,23 @@ const UserDataPage = () => {
 	}
 
 	if (error) {
-		return <>User Not Found</>;
+		return (
+			<main className="container mx-auto flex min-h-screen flex-col items-center justify-center p-4">
+				<h1 className="text-5xl font-extrabold leading-normal text-[#0D2A21] md:text-[5rem]">
+					User Not Found
+				</h1>
+			</main>
+		);
 	}
 
 	if (!userData) {
-		return <>Loading...</>;
+		return (
+			<main className="container mx-auto flex min-h-screen flex-col items-center justify-center p-4">
+				<h1 className="text-5xl font-extrabold leading-normal text-[#0D2A21] md:text-[5rem]">
+					Loading...
+				</h1>
+			</main>
+		);
 	}
 
 	return (
