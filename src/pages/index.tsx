@@ -87,7 +87,10 @@ const Home: NextPage = () => {
 				<div className="flex max-w-xl flex-wrap gap-4">
 					<LogoutButton handleLogout={handleLogout} />
 					{currentUserData.role === Roles.CASHIER && (
-						<PaymentButton />
+						<>
+							<PaymentButton />
+							<SearchUserBalance />
+						</>
 					)}
 					{currentUserData.role === Roles.ACCOUNTANT && (
 						<CashInButton />
@@ -159,4 +162,19 @@ const PaymentButton = () => {
 		</Link>
 	);
 };
+
+const SearchUserBalance = () => {
+	return (
+		<Link href="/user/balance">
+			<button
+				type="button"
+				className="flex w-max items-center justify-center rounded-lg  bg-[#02A66D] py-2 px-4 text-center text-base font-semibold text-white shadow-md transition duration-200 ease-in hover:bg-[#006400] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2  focus:ring-offset-blue-200 "
+			>
+				<FaSearch className="mr-2" />
+				Search User Balance
+			</button>
+		</Link>
+	);
+};
+
 export default Home;
