@@ -22,7 +22,7 @@ const PaymentPage = () => {
 	const [isLoading, setIsLoading] = useState(false);
 	const [formError, setFormError] = useState("");
 	const { currentUser, logout } = useContext(AuthContext);
-	const { currentUserData, addTransaction, getPin } =
+	const { currentUserData, addTransaction, getDataFromRFIDCardNumber } =
 		useContext(FirestoreContext);
 
 	const {
@@ -41,10 +41,10 @@ const PaymentPage = () => {
 
 		setIsLoading(true);
 		setFormError("");
-		getPin(sender)
-			.then((res) => {
-				if (res === null) res = "";
-				if (res !== pin) {
+		getDataFromRFIDCardNumber(sender)
+			.then((senderUserData) => {
+				if (senderUserData.pin === null) senderUserData.pin = "";
+				if (senderUserData.pin !== pin) {
 					setFormError("Pin does not match");
 					return;
 				}
@@ -52,10 +52,9 @@ const PaymentPage = () => {
 				addTransaction(
 					TransactionTypes.PAYMENT,
 					amount,
-					sender,
+					senderUserData.idNumber,
 					currentUserData.idNumber,
-					"Payment",
-					true
+					"Payment"
 				)
 					.then(() => {
 						alert("Paid successfully!");

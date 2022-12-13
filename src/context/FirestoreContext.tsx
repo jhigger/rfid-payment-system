@@ -145,8 +145,7 @@ interface ContextValues {
 		amount: number,
 		senderIdNumber: string,
 		receiverIdNumber: string,
-		message: string | null,
-		rfid?: boolean
+		message: string | null
 	) => Promise<void>;
 	getUidFromIdNumber: (idNumber: string) => Promise<string>;
 	getUser: (idNumber: string) => Promise<UserData | undefined>;
@@ -156,7 +155,7 @@ interface ContextValues {
 	) => Promise<
 		(StudentData & FacultyData & CashierData & AdminData) | undefined
 	>;
-	getPin: (cardNumber: string) => Promise<string | null | undefined>;
+	getDataFromRFIDCardNumber: (cardNumber: string) => Promise<UserData>;
 }
 
 const FirestoreContext = createContext<ContextValues>({} as ContextValues);
@@ -240,13 +239,10 @@ const FirestoreProvider = ({ children }: { children: JSX.Element | null }) => {
 		amount: number,
 		senderIdNumber: string,
 		receiverIdNumber: string,
-		message: string | null,
-		rfid?: boolean
+		message: string | null
 	) => {
 		// get UIDs
-		const senderUid = rfid
-			? await getUidFromRFIDCardNumber(senderIdNumber)
-			: await getUidFromIdNumber(senderIdNumber);
+		const senderUid = await getUidFromIdNumber(senderIdNumber);
 		const receiverUid = await getUidFromIdNumber(receiverIdNumber);
 
 		if (type === TransactionTypes.PAYMENT) {
@@ -336,16 +332,16 @@ const FirestoreProvider = ({ children }: { children: JSX.Element | null }) => {
 		return Promise.reject(new Error("ID number does not exist."));
 	};
 
-	const getUidFromRFIDCardNumber = async (
+	const getDataFromRFIDCardNumber = async (
 		cardNumber: string
-	): Promise<string> => {
+	): Promise<UserData> => {
 		const q = query(
 			collection(db, "users"),
 			where("cardNumber", "==", cardNumber)
 		);
 		const docSnap = await getDocs(q);
 		if (docSnap.docs[0]?.exists()) {
-			return docSnap.docs[0].id;
+			return docSnap.docs[0].data() as UserData;
 		}
 		// doc.data() will be undefined in this case
 		return Promise.reject(new Error("RFID card number does not exist."));
@@ -359,20 +355,6 @@ const FirestoreProvider = ({ children }: { children: JSX.Element | null }) => {
 		if (docSnap.exists()) {
 			const data = docSnap.data();
 			return { ...data } as UserData;
-		} else {
-			// doc.data() will be undefined in this case
-			console.log("No such document!");
-		}
-	};
-
-	const getPin = async (cardNumber: string) => {
-		const uid = await getUidFromRFIDCardNumber(cardNumber);
-		const docRef = doc(db, "users", uid);
-		const docSnap = await getDoc(docRef);
-
-		if (docSnap.exists()) {
-			const data = docSnap.data() as UserData;
-			return data.pin;
 		} else {
 			// doc.data() will be undefined in this case
 			console.log("No such document!");
@@ -422,7 +404,7 @@ const FirestoreProvider = ({ children }: { children: JSX.Element | null }) => {
 		getUidFromIdNumber,
 		getUser,
 		getRoleData,
-		getPin,
+		getDataFromRFIDCardNumber,
 	};
 
 	return (
