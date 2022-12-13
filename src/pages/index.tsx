@@ -69,7 +69,7 @@ const Home: NextPage = () => {
 	return (
 		<>
 			<Head>
-				<title>RFID Payment System</title>
+				<title>UC Pay</title>
 				<meta
 					name="description"
 					content="Payment system using RFID technology"

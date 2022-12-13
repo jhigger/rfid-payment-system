@@ -41,7 +41,7 @@ const LoginPage = () => {
 	return (
 		<>
 			<Head>
-				<title>RFID Payment System | Login</title>
+				<title>UC Pay | Login</title>
 				<link rel="icon" href="/favicon.ico" />
 			</Head>
 			<main className="container mx-auto flex min-h-screen flex-col items-center justify-center p-4">

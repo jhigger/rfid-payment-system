@@ -106,7 +106,7 @@ const PaymentPage = () => {
 	return (
 		<>
 			<Head>
-				<title>RFID Payment System | Pay</title>
+				<title>UC Pay | Pay</title>
 				<link rel="icon" href="/favicon.ico" />
 			</Head>
 			<main className="container mx-auto flex min-h-screen flex-col items-center justify-center p-4">

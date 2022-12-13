@@ -71,7 +71,7 @@ const SearchUserPage = () => {
 	return (
 		<>
 			<Head>
-				<title>RFID Payment System | Cash In</title>
+				<title>UC Pay | Cash In</title>
 				<link rel="icon" href="/favicon.ico" />
 			</Head>
 			<main className="container mx-auto flex min-h-screen flex-col items-center justify-center p-4">

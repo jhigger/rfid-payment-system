@@ -115,7 +115,7 @@ const RegisterPage = () => {
 	return (
 		<>
 			<Head>
-				<title>RFID Payment System | Register</title>
+				<title>UC Pay | Register</title>
 				<link rel="icon" href="/favicon.ico" />
 			</Head>
 			<main className="container mx-auto flex min-h-screen flex-col items-center justify-center p-4">
