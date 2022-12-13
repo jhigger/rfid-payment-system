@@ -52,11 +52,23 @@ const TransactionsPage = () => {
 	}
 
 	if (error) {
-		return <>No Transactions Found</>;
+		return (
+			<main className="container mx-auto flex min-h-screen flex-col items-center justify-center p-4">
+				<h1 className="text-5xl font-extrabold leading-normal text-[#0D2A21] md:text-[5rem]">
+					No Transactions Found
+				</h1>
+			</main>
+		);
 	}
 
 	if (!transactions) {
-		return <>Loading...</>;
+		return (
+			<main className="container mx-auto flex min-h-screen flex-col items-center justify-center p-4">
+				<h1 className="text-5xl font-extrabold leading-normal text-[#0D2A21] md:text-[5rem]">
+					Loading...
+				</h1>
+			</main>
+		);
 	}
 
 	return (
@@ -105,7 +117,15 @@ const TransactionsPage = () => {
 										{transaction.receiver}
 									</td>
 									<td className="dark:border-dark-5 border-b-2 p-4">
-										{transaction.amount}
+										{transaction.sender === idNumber
+											? "- "
+											: "+ "}
+										{Number(
+											transaction.amount
+										).toLocaleString("en-PH", {
+											currency: "PHP",
+											style: "currency",
+										})}
 									</td>
 									<td className="dark:border-dark-5 border-b-2 p-4">
 										{timestampToDate(
