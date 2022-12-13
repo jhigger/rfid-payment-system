@@ -101,6 +101,7 @@ export interface FacultyData {
 }
 
 export interface CashierData {
+	storeName: string;
 	createdAt: FieldValue;
 	updatedAt: FieldValue;
 }
@@ -206,7 +207,10 @@ const FirestoreProvider = ({ children }: { children: JSX.Element | null }) => {
 				await addToRole(Roles.FACULTY, uid, facultyData);
 				break;
 			case Roles.CASHIER:
-				const cashierData: CashierData = { ...timestamps };
+				const cashierData: CashierData = {
+					storeName: registerData.storeName,
+					...timestamps,
+				};
 				await addToRole(Roles.CASHIER, uid, cashierData);
 				break;
 			case Roles.ADMIN:

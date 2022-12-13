@@ -393,10 +393,30 @@ const RoleDataInputs = ({ role, register, errors }: RoleDataProps) => {
 				</div>
 			</>
 		);
+	} else if (role === Roles.CASHIER) {
+		return (
+			<>
+				<div className="mb-2 flex flex-col">
+					<div className=" relative ">
+						<input
+							type="text"
+							className=" w-full flex-1 appearance-none rounded-lg border border-transparent border-gray-300 bg-white py-2 px-4 text-base text-[#006400] placeholder-gray-400 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-600"
+							placeholder="Store Name"
+							{...register("storeName", {
+								required: "Field is required",
+							})}
+						/>
+						<span className="flex-items-center justify-center text-center text-sm text-red-500 dark:text-red-400">
+							{errors.storeName && errors.storeName.message}
+						</span>
+					</div>
+				</div>
+			</>
+		);
 	}
 
 	// for additional registration fields on different roles
-	// if (role === Roles.INSERT_ROLE_HERE) { INSERT_OTHER_FIELDS_HERE }
+	// else if (role === Roles.INSERT_ROLE_HERE) { INSERT_OTHER_FIELDS_HERE }
 
 	return null;
 };
