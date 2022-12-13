@@ -84,9 +84,6 @@ const TransactionsPage = () => {
 							Sender
 						</th>
 						<th className="dark:border-dark-5 whitespace-nowrap border-b-2 p-4 font-normal text-white">
-							Receiver
-						</th>
-						<th className="dark:border-dark-5 whitespace-nowrap border-b-2 p-4 font-normal text-white">
 							Amount
 						</th>
 						<th className="dark:border-dark-5 whitespace-nowrap border-b-2 p-4 font-normal text-white">

@@ -90,6 +90,7 @@ const Home: NextPage = () => {
 						<>
 							<PaymentButton />
 							<SearchUserBalance />
+							<SearchUserTransactions />
 						</>
 					)}
 					{currentUserData.role === Roles.ACCOUNTANT && (
@@ -172,6 +173,20 @@ const SearchUserBalance = () => {
 			>
 				<FaSearch className="mr-2" />
 				Search User Balance
+			</button>
+		</Link>
+	);
+};
+
+const SearchUserTransactions = () => {
+	return (
+		<Link href="/user/transactions">
+			<button
+				type="button"
+				className="flex w-max items-center justify-center rounded-lg  bg-[#02A66D] py-2 px-4 text-center text-base font-semibold text-white shadow-md transition duration-200 ease-in hover:bg-[#006400] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2  focus:ring-offset-blue-200 "
+			>
+				<FaSearch className="mr-2" />
+				Search User Transactions
 			</button>
 		</Link>
 	);
