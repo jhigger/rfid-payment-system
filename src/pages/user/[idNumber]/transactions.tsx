@@ -3,9 +3,7 @@ import type { FieldValue } from "firebase/firestore";
 import { useRouter } from "next/router";
 import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../../../context/AuthContext";
-import type {
-	TransactionData,
-} from "../../../context/FirestoreContext";
+import type { TransactionData } from "../../../context/FirestoreContext";
 import {
 	FirestoreContext,
 	TransactionTypes,
@@ -123,6 +121,7 @@ const TransactionsPage = () => {
 						)
 						.map((transaction: TransactionData, idx) => {
 							const type =
+								transaction.message === "Receive" &&
 								transaction.receiver === (idNumber as string)
 									? TransactionTypes.RECEIVE
 									: transaction.type;
