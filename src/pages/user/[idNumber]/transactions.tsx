@@ -3,8 +3,13 @@ import type { FieldValue } from "firebase/firestore";
 import { useRouter } from "next/router";
 import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../../../context/AuthContext";
-import type { TransactionData } from "../../../context/FirestoreContext";
-import { FirestoreContext } from "../../../context/FirestoreContext";
+import type {
+	TransactionData,
+} from "../../../context/FirestoreContext";
+import {
+	FirestoreContext,
+	TransactionTypes,
+} from "../../../context/FirestoreContext";
 
 const TransactionsPage = () => {
 	const router = useRouter();
@@ -117,10 +122,14 @@ const TransactionsPage = () => {
 								timestampToDate(a?.createdAt).getMilliseconds()
 						)
 						.map((transaction: TransactionData, idx) => {
+							const type =
+								transaction.receiver === (idNumber as string)
+									? TransactionTypes.RECEIVE
+									: transaction.type;
 							return (
 								<tr key={idx} className="text-white">
 									<td className="dark:border-dark-5 border-b-2 p-4">
-										{transaction.type}
+										{type}
 									</td>
 									<td className="dark:border-dark-5 border-b-2 p-4">
 										{transaction.sender}
