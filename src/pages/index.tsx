@@ -89,8 +89,9 @@ const Home: NextPage = () => {
 					{currentUserData.role === Roles.CASHIER && (
 						<>
 							<PaymentButton />
-							<SearchUserBalance />
-							<SearchUserTransactions />
+							<CurrentUserBalanceAndTransactions
+								idNumber={currentUserData.idNumber}
+							/>
 						</>
 					)}
 					{currentUserData.role === Roles.ACCOUNTANT && (
@@ -164,29 +165,19 @@ const PaymentButton = () => {
 	);
 };
 
-const SearchUserBalance = () => {
+const CurrentUserBalanceAndTransactions = ({
+	idNumber,
+}: {
+	idNumber: string;
+}) => {
 	return (
-		<Link href="/user/balance">
+		<Link href={`/user/${idNumber}/transactions`}>
 			<button
 				type="button"
 				className="flex w-max items-center justify-center rounded-lg  bg-[#02A66D] py-2 px-4 text-center text-base font-semibold text-white shadow-md transition duration-200 ease-in hover:bg-[#006400] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2  focus:ring-offset-blue-200 "
 			>
 				<FaSearch className="mr-2" />
-				Search User Balance
-			</button>
-		</Link>
-	);
-};
-
-const SearchUserTransactions = () => {
-	return (
-		<Link href="/user/transactions">
-			<button
-				type="button"
-				className="flex w-max items-center justify-center rounded-lg  bg-[#02A66D] py-2 px-4 text-center text-base font-semibold text-white shadow-md transition duration-200 ease-in hover:bg-[#006400] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2  focus:ring-offset-blue-200 "
-			>
-				<FaSearch className="mr-2" />
-				Search User Transactions
+				Cashier Balance & Transactions
 			</button>
 		</Link>
 	);
