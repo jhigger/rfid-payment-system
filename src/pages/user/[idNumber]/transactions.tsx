@@ -96,7 +96,10 @@ const TransactionsPage = () => {
 							Type
 						</th>
 						<th className="dark:border-dark-5 whitespace-nowrap border-b-2 p-4 font-normal text-white">
-							Sender/Receiver
+							Sender
+						</th>
+						<th className="dark:border-dark-5 whitespace-nowrap border-b-2 p-4 font-normal text-white">
+							Receiver
 						</th>
 						<th className="dark:border-dark-5 whitespace-nowrap border-b-2 p-4 font-normal text-white">
 							Amount
@@ -123,13 +126,10 @@ const TransactionsPage = () => {
 										{transaction.type}
 									</td>
 									<td className="dark:border-dark-5 border-b-2 p-4">
-										{transaction.type ===
-										TransactionTypes.SEND
-											? transaction.receiver
-											: transaction.type ===
-											  TransactionTypes.RECEIVE
-											? transaction.sender
-											: transaction.sender}
+										{transaction.sender}
+									</td>
+									<td className="dark:border-dark-5 border-b-2 p-4">
+										{transaction.receiver}
 									</td>
 									<td className="dark:border-dark-5 border-b-2 p-4">
 										{transaction.sender === idNumber
