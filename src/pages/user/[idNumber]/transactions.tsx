@@ -3,7 +3,10 @@ import type { FieldValue } from "firebase/firestore";
 import { useRouter } from "next/router";
 import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../../../context/AuthContext";
-import type { TransactionData } from "../../../context/FirestoreContext";
+import {
+	TransactionData,
+	TransactionTypes,
+} from "../../../context/FirestoreContext";
 
 const TransactionsPage = () => {
 	const router = useRouter();
@@ -81,7 +84,7 @@ const TransactionsPage = () => {
 							Type
 						</th>
 						<th className="dark:border-dark-5 whitespace-nowrap border-b-2 p-4 font-normal text-white">
-							Sender
+							Sender/Receiver
 						</th>
 						<th className="dark:border-dark-5 whitespace-nowrap border-b-2 p-4 font-normal text-white">
 							Amount
@@ -108,7 +111,13 @@ const TransactionsPage = () => {
 										{transaction.type}
 									</td>
 									<td className="dark:border-dark-5 border-b-2 p-4">
-										{transaction.sender}
+										{transaction.type ===
+										TransactionTypes.SEND
+											? transaction.receiver
+											: transaction.type ===
+											  TransactionTypes.RECEIVE
+											? transaction.sender
+											: transaction.sender}
 									</td>
 									<td className="dark:border-dark-5 border-b-2 p-4">
 										{transaction.sender === idNumber
