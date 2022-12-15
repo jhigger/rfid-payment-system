@@ -4,10 +4,7 @@ import { useRouter } from "next/router";
 import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../../../context/AuthContext";
 import type { TransactionData } from "../../../context/FirestoreContext";
-import {
-	TransactionTypes,
-	FirestoreContext,
-} from "../../../context/FirestoreContext";
+import { FirestoreContext } from "../../../context/FirestoreContext";
 
 const TransactionsPage = () => {
 	const router = useRouter();
