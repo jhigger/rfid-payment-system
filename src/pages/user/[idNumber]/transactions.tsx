@@ -12,10 +12,11 @@ import {
 const TransactionsPage = () => {
 	const router = useRouter();
 	const { currentUser } = useContext(AuthContext);
-	const { currentUserData } = useContext(FirestoreContext);
+	const { getUser } = useContext(FirestoreContext);
 	const { idNumber } = router.query;
 
 	const [transactions, setTransactions] = useState([]);
+	const [balance, setBalance] = useState(0);
 	const [error, setError] = useState(false);
 	const [refresh, setRefresh] = useState(false);
 
@@ -45,6 +46,18 @@ const TransactionsPage = () => {
 				setError(true);
 			});
 	}, [idNumber, refresh]);
+
+	useEffect(() => {
+		getUser(idNumber as string)
+			.then((res) => {
+				if (!res) return;
+				setBalance(res.funds);
+			})
+			.catch((err) => {
+				console.log(err);
+				setError(true);
+			});
+	}, [idNumber, refresh, getUser]);
 
 	useEffect(() => {
 		if (!currentUser) {
@@ -83,7 +96,7 @@ const TransactionsPage = () => {
 			<div className="container mx-auto flex flex-col items-center justify-center p-4">
 				<h1 className="text-5xl font-extrabold leading-normal text-[#0D2A21]">
 					Balance:{" "}
-					{Number(currentUserData?.funds).toLocaleString("en-PH", {
+					{Number(balance).toLocaleString("en-PH", {
 						currency: "PHP",
 						style: "currency",
 					})}

@@ -364,7 +364,7 @@ const FirestoreProvider = ({ children }: { children: JSX.Element | null }) => {
 			return { ...data } as UserData;
 		} else {
 			// doc.data() will be undefined in this case
-			console.log("No such document!");
+			return Promise.reject(new Error("ID number does not exist."));
 		}
 	};
 
