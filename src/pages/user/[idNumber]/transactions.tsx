@@ -127,10 +127,8 @@ const TransactionsPage = () => {
 						.filter((x) => !!x)
 						.sort(
 							(a: TransactionData, b: TransactionData) =>
-								timestampToDate(
-									b?.createdAt
-								).getMilliseconds() -
-								timestampToDate(a?.createdAt).getMilliseconds()
+								timestampToDate(b?.createdAt).valueOf() -
+								timestampToDate(a?.createdAt).valueOf()
 						)
 						.map((transaction: TransactionData, idx) => {
 							const type =
