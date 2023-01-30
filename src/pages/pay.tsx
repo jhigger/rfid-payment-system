@@ -1,3 +1,4 @@
+import QRCode from "qrcode";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import { useContext, useEffect, useState } from "react";
@@ -109,11 +110,11 @@ const PaymentPage = () => {
 				<link rel="icon" href="/favicon.ico" />
 			</Head>
 			<main className="container mx-auto flex min-h-screen flex-col items-center justify-center p-4">
-				<div className="flex max-w-md flex-col rounded-lg bg-[#0D2A21] px-4 py-8 shadow sm:px-6 md:px-8 lg:px-10">
+				<div className="flex w-max flex-col rounded-lg bg-[#0D2A21] px-4 py-8 shadow sm:px-6 md:px-8 lg:px-10">
 					<div className="mb-2 self-center text-xl font-light text-gray-800 dark:text-white sm:text-2xl">
 						Payment Transaction
 					</div>
-					<div className="mt-8 p-6">
+					<div className="mt-8 flex gap-4 divide-x p-6">
 						<form onSubmit={handleSubmit(onSubmit)}>
 							<div className="mb-2 flex flex-col">
 								<div className=" relative ">
@@ -181,10 +182,24 @@ const PaymentPage = () => {
 								{formError}
 							</span>
 						</form>
+						<QRCodeImage idNumber={currentUserData.idNumber} />
 					</div>
 				</div>
 			</main>
 		</>
+	);
+};
+
+const generateQR = (idNumber: string) => {
+	return QRCode.toCanvas(document.getElementById("canvas"), idNumber);
+};
+
+const QRCodeImage = ({ idNumber }: { idNumber: string }) => {
+	generateQR(idNumber);
+	return (
+		<div className="flex items-center justify-center p-8 text-white">
+			<canvas id="canvas" className="h-max w-max"></canvas>
+		</div>
 	);
 };
 
